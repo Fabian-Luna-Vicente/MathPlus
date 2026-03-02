@@ -1,8 +1,7 @@
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form,Header
 from fastapi.responses import FileResponse
-from lief import Header
 from app.models.schemas import DetectedProblemsResponse, ExplainRequest, SolucionMath
 from app.agents.graph import app_graph
 from app.services.ocr import extract_text_from_pdf

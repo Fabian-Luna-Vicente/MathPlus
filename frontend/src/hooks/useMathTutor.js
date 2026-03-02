@@ -13,13 +13,26 @@ export const useMathTutor = () => {
   const utteranceRef = useRef(null);
 
   const solveProblem = async (latex, instructions, file) => {
+    const keys=JSON.parse(localStorage.getItem('math_app_keys'))
+
+    if(!keys.gemini){
+      alert("⚠️ Necesitas configurar tu API Key de Gemini primero.");
+        return; // O abrir modal settings
+    }
+    const headers={
+      'x-gemini-key': keys.gemini,
+      'x-groq-key': keys.groq || ""
+    }
+
     setLoading(true);
     const formData = new FormData();
     if (file) formData.append('file', file);
-    // Combinamos la ecuación con las instrucciones de texto
-    const finalQuery = latex ? `Problema: ${latex}. Instrucciones: ${instructions}` : instructions;
-    formData.append('query', finalQuery);
 
+    const finalQuery = latex ? `Problema: ${latex}. Instrucciones: ${instructions}` : instructions;
+
+    formData.append('query', finalQuery);
+    formData.append('headers', JSON.stringify(headers));
+    
     try {
       const res = await axios.post('http://localhost:8000/api/v1/solve', formData);
       setSolution(res.data);
