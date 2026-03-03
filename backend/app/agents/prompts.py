@@ -86,7 +86,7 @@ Formato estricto: Tipo | Status | Apart | X | Y | LaTeX
 - TEXTO PRINCIPAL (Eje X): Usa X=350 (Izquierda-Centro) alineado a la izquierda.
 
 === 5. SINTAXIS SECCIÓN "INSTS" (Animaciones y Pasos) (CRÍTICO) ===
-Escribe el mensaje que dice el profesor, seguido inmediatamente por las líneas de animación que aplican a ese paso. Las animaciones DEBEN empezar con >.
+Escribe el mensaje que dice el profesor, si quieres mensionar expresiones matematicas escribelas como lo diria una persona ejemplo:log3=logaritmo de 3, seguido inmediatamente por las líneas de animación que aplican a ese paso. Las animaciones DEBEN empezar con >.
 Formato de animación: > INDICE | ACCION | VALOR | COLOR
 
 - INDICE: Número entero de la ecuación en la sección CONT (0, 1, 2...).
