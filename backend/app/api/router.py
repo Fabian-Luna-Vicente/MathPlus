@@ -14,7 +14,7 @@ from app.services.ProblemSplitterAI import split_problems_with_ai
 router = APIRouter()
 
 @router.post("/scan_problems", response_model=DetectedProblemsResponse)
-async def scan_problems_from_file(file: UploadFile = File(...),x_gemini_key:Optional[str]=Header(None,alias="x-gemini-key")):
+async def scan_problems_from_file(file: UploadFile = File(...),x_gemini_key:Optional[str]=Header(None,alias="x_gemini_key")):
     """
     Recibe PDF o Imagen y usa IA Vision para detectar ejercicios.
     """
@@ -32,7 +32,7 @@ async def scan_problems_from_file(file: UploadFile = File(...),x_gemini_key:Opti
         
         if not detected_problems:
             return {"problems": ["No pudimos detectar ejercicios claros. Intenta recortar la imagen."]}
-
+        print("Ejercicios detectados:", detected_problems)
         return {"problems": detected_problems}
 
     except Exception as e:
@@ -46,7 +46,7 @@ async def default_json_problem():
     return json_res
 
 @router.post("/explain_step")
-async def explain_step_deeply(req: ExplainRequest,x_gemini_key:Optional[str]=Header(None,alias="x-gemini-key"),x_groq_key:Optional[str]=Header(None,alias="x-groq-key")):
+async def explain_step_deeply(req: ExplainRequest,x_gemini_key:Optional[str]=Header(None,alias="x_gemini_key"),x_groq_key:Optional[str]=Header(None,alias="x_groq_key")):
     
     api_keys={"gemini":x_gemini_key,"groq":x_groq_key}
     
@@ -69,23 +69,16 @@ async def defoult_solve_problem():
 @router.post("/solve",response_model=SolucionMath)
 async def solve_problem(
     query: str = Form(None), 
-    file: UploadFile = File(None),
-    x_gemini_key: Optional[str] = Header(None, alias="x-gemini-key"),
-    x_groq_key: Optional[str] = Header(None, alias="x-groq-key")
+    x_gemini_key: Optional[str] = Header(None, alias="x_gemini_key"),
+    x_groq_key: Optional[str] = Header(None, alias="x_groq_key")
 ):
     user_input = ""
     
     # 1. Prioridad al archivo si existe
-    if file:
-        if file.content_type == "application/pdf":
-            content = await file.read()
-            user_input = extract_text_from_pdf(content)
-        else:
-            raise HTTPException(400, "Solo se aceptan PDFs por ahora")
-    elif query:
+    if query:
         user_input = query
     else:
-        raise HTTPException(400, "Debes enviar texto o un archivo PDF")
+        raise HTTPException(400, "Debes enviar texto ")
 
     # 2. Ejecutar Grafo (LangGraph)
     initial_state = {

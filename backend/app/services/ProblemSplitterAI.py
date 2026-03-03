@@ -15,14 +15,21 @@ def split_problems_with_ai(file_content: bytes, mime_type: str,api_key:str) -> L
     client = genai.Client(api_key=api_key)
 
     prompt_text = """
-    Analiza esta imagen/documento de una tarea de matemáticas.
-    Tu objetivo es IDENTIFICAR y EXTRAER cada problema individualmente.
+    Analiza esta imagen de una tarea de matemáticas.
+    Tu objetivo es EXTRAER cada ejercicio individual para que pueda ser resuelto por separado.
+
+    REGLAS ESTRICTAS DE SEGMENTACIÓN:
+    1. Si ves una lista de ejercicios con letras (a), b), c)...) o números romanos (i, ii...), TRÁTALOS COMO PROBLEMAS INDEPENDIENTES. Sepáralos.
+    2. NO incluyas el enunciado general (ej: "Simplifica estas expresiones") en cada problema. Solo dame la ecuación o expresión matemática.
+    3. Si un ejercicio depende de un contexto (ej: un problema de texto), incluye el contexto necesario.
+    4. Devuelve el texto limpio. Usa LaTeX para las fórmulas.
     
-    INSTRUCCIONES:
-    1. Si hay varios ejercicios numerados (1, 2, 3...), separa cada uno.
-    2. Si un ejercicio tiene incisos (a, b, c), MANTENLOS JUNTOS en el mismo bloque del problema principal.
-    3. Ignora encabezados, pies de página o instrucciones generales.
-    4. Devuelve el texto exacto. Si hay fórmulas, transcríbelas a LaTeX.
+    EJEMPLO DE SALIDA ESPERADA:
+    [
+      "\\log_3 7 + \\log_3 2 =",
+      "\\log 15 - \\log 5 =",
+      ...
+    ]
     """
 
     try:

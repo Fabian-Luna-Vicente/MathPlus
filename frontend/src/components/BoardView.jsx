@@ -1,6 +1,14 @@
-// src/App.jsx
 import React, { useState, useRef, useEffect } from "react";
-import { FileText, Edit3, ClipboardPaste, ScanSearch, Upload, X } from "lucide-react"; // <--- ICONOS AGREGADOS
+import axios from 'axios';
+import {
+  FileText,
+  Edit3,
+  ClipboardPaste,
+  ScanSearch,
+  Upload,
+  X,
+  MessageSquare // Nuevo icono para instrucciones
+} from "lucide-react";
 
 // --- COMPONENTES ---
 import MathInput from "./MathInput";
@@ -19,10 +27,10 @@ import {
   calculateArrowPositions,
 } from "../../utils/latexFixer";
 
-function App() {
+function BoardView({ onBack }) { // Recibimos onBack si quieres botón volver
   // --- ESTADOS PRINCIPALES ---
   const [latexInput, setLatexInput] = useState("");
-  const [instructions, setInstructions] = useState("");
+  const [instructions, setInstructions] = useState(""); 
   const [file, setFile] = useState(null);
 
   // --- ESTADOS DE SELECCIÓN DE PROBLEMAS (MODAL) ---
@@ -39,7 +47,7 @@ function App() {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   // --- REFERENCIA AL INPUT DE ARCHIVO ---
-  const fileInputRef = useRef(null); // <--- REF PARA EL INPUT OCULTO
+  const fileInputRef = useRef(null); 
 
   // --- ESTADOS DEL EDITOR VISUAL ---
   const [isEditorOpen, setIsEditorOpen] = useState(false);
@@ -69,7 +77,6 @@ function App() {
       setEditableSolution(null);
       return;
     }
-    // Procesamos layout y física
     const processed = solution.escenas.map((scene) => {
       let p = fixLatexHighlighting(scene);
       p = preventCollisions(p);
@@ -79,94 +86,96 @@ function App() {
     setEditableSolution(processed);
   }, [solution]);
 
+
   // --- MANEJADORES DE LÓGICA ---
-  
+
   const resetNavigation = () => {
-      setTargetStep(null);
-      setCurrentStep(0);
+    setTargetStep(null);
+    setCurrentStep(0);
   };
 
-  // MANEJO DE ARCHIVOS (NUEVO)
+  // 1. MANEJO EXCLUSIVO DE ARCHIVOS
   const handleFileSelect = (e) => {
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
+      setLatexInput(""); // Borramos texto si sube archivo
     }
   };
 
   const handleClearFile = (e) => {
     e.stopPropagation();
     setFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  // 2. MANEJO EXCLUSIVO DE TEXTO
+  const handleLatexChange = (val) => {
+      setLatexInput(val);
+      if (val && file) {
+          // Si empieza a escribir, borramos el archivo
+          setFile(null);
+          if (fileInputRef.current) fileInputRef.current.value = "";
+      }
   };
 
   const handleScanAndSolve = async () => {
-    const keys=JSON.parse(localStorage.getItem('math_app_keys'))
+    const keys = JSON.parse(localStorage.getItem("math_app_keys"));
 
-     if(!keys.gemini){
+    if (!keys || !keys.gemini) {
       alert("⚠️ Necesitas configurar tu API Key de Gemini primero.");
-        return; // O abrir modal settings
+      return; 
     }
-    // 1. Si es solo texto, resolvemos directo
+
+    // A. SOLUCIÓN POR TEXTO
     if (!file && latexInput) {
-        solveProblem(latexInput, instructions, null);
-        resetNavigation();
-        return;
+      // Enviamos input + instrucciones adicionales
+      solveProblem(latexInput, instructions);
+      resetNavigation();
+      return;
     }
 
-       const headers={
-      'x-gemini-key': keys.gemini,
-      'x-groq-key': keys.groq || ""
-    }
-
-    // 2. Si hay archivo, ESCANEAMOS primero
+    // B. SOLUCIÓN POR ARCHIVO (SCAN)
     if (file) {
-        setIsScanning(true);
-        try {
+      setIsScanning(true);
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+        // Nota: Las instrucciones adicionales no se envían al scan, 
+        // se enviarán luego cuando elijas el problema.
+        
+        const response = await axios.post(
+          "http://localhost:8000/api/v1/scan_problems",
+          formData,
+          { headers: { x_gemini_key: keys.gemini } }
+        );
 
-            const formData = new FormData();
-            formData.append("file", file);
-
-            formData.append('headers', JSON.stringify(headers));
-    
-            // Ajusta la URL a tu backend si es necesario
-            const response = await fetch("http://localhost:8000/api/v1/scan_problems", {
-                method: "POST",
-                body: formData,
-
-            });
-
-            if (!response.ok) throw new Error("Error al escanear el archivo");
-
-            const data = await response.json();
-            
-            if (data.problems && data.problems.length > 1) {
-                // Múltiples problemas -> Abrir Modal
-                setDetectedProblems(data.problems);
-                setShowSelector(true);
-            } else if (data.problems && data.problems.length === 1) {
-                // Un solo problema -> Resolver directo
-                solveProblem(data.problems[0], instructions, null);
-                resetNavigation();
-            } else {
-                // Fallback -> Enviar archivo crudo
-                solveProblem(null, instructions, file);
-                resetNavigation();
-            }
-        } catch (error) {
-            console.error(error);
-            alert("Error al leer el archivo. Intenta de nuevo.");
-        } finally {
-            setIsScanning(false);
+        const data = response.data;
+        if (data.problems && data.problems.length > 0) {
+          if (data.problems.length > 1) {
+            setDetectedProblems(data.problems);
+            setShowSelector(true);
+          } else {
+            // Un solo problema -> Lo resolvemos pasando las instrucciones
+            solveProblem(data.problems[0], instructions);
+            resetNavigation();
+          }
+        } else {
+          alert("No pude leer ejercicios en la imagen.");
         }
+      } catch (error) { 
+        console.error(error);
+        alert("Error al leer el archivo.");
+      } finally {
+        setIsScanning(false);
+      }
     }
   };
 
   const handleSelectProblem = (problemText) => {
-      setShowSelector(false);
-      solveProblem(problemText, instructions, null); 
-      resetNavigation();
+    setShowSelector(false);
+    // Resolvemos el problema elegido + instrucciones
+    solveProblem(problemText, instructions);
+    resetNavigation();
   };
 
   const handleResourceClick = (stepIndex) => setTargetStep(stepIndex);
@@ -184,7 +193,6 @@ function App() {
       const clipboardText = await navigator.clipboard.readText();
       const parsedData = JSON.parse(clipboardText);
       let sceneToProcess = parsedData.escenas ? parsedData.escenas[0] : parsedData;
-
       if (!sceneToProcess.cont) throw new Error("Formato inválido");
 
       let p = fixLatexHighlighting(sceneToProcess);
@@ -199,71 +207,102 @@ function App() {
     }
   };
 
-
   // --- RENDERIZADO ---
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-neutral-200 p-8 font-sans selection:bg-[#00ff66] selection:text-black relative">
-      <header className="max-w-6xl mx-auto mb-8">
+    <div className="min-h-screen bg-[#0a0a0a] text-neutral-200 p-8 font-sans selection:bg-[#00ff66] selection:text-black relative animate-in fade-in duration-500">
+      
+      {/* Botón Volver (Opcional) */}
+      {onBack && (
+          <button onClick={onBack} className="absolute top-8 left-8 text-neutral-500 hover:text-white transition">
+              &larr; Volver al Inicio
+          </button>
+      )}
+
+      <header className="max-w-6xl mx-auto mb-8 text-center md:text-left">
         <h1 className="text-4xl font-extrabold text-white tracking-tight">
-          MathPlus <span className="text-[#00ff66] drop-shadow-[0_0_15px_rgba(0,255,102,0.4)]">Tutor</span>
+          MathPlus <span className="text-[#00ff66]">Board</span>
         </h1>
       </header>
 
       <main className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
         {/* COLUMNA IZQUIERDA: INPUTS */}
         <div className="lg:col-span-4 space-y-6">
           <div className="bg-[#111] border border-neutral-800 p-6 rounded-xl shadow-2xl space-y-4">
             
-            {/* Input de Texto Matemático */}
-            <MathInput 
-                value={latexInput} 
-                onChange={setLatexInput} 
-            />
+            {/* 1. INPUT MATEMÁTICO (Deshabilitado si hay archivo) */}
+            <div className={`transition-opacity ${file ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+                <div className="flex justify-between items-center mb-1">
+                    <label className="text-xs text-[#00ff66] font-bold uppercase">Problema Matemático</label>
+                    {latexInput && !file && (
+                        <button onClick={() => setLatexInput("")} className="text-xs text-neutral-500 hover:text-red-400">Borrar</button>
+                    )}
+                </div>
+                <MathInput 
+                    value={latexInput} 
+                    onChange={handleLatexChange} 
+                />
+            </div>
 
-            {/* --- ZONA DE CARGA DE ARCHIVOS (NUEVO) --- */}
-            <div 
-              onClick={() => fileInputRef.current.click()}
+            {/* Separador "O" */}
+            <div className="flex items-center gap-4">
+                <div className="h-px bg-neutral-800 flex-1"/>
+                <span className="text-xs text-neutral-600 font-bold">O SUBE UNA IMAGEN</span>
+                <div className="h-px bg-neutral-800 flex-1"/>
+            </div>
+
+            {/* 2. ZONA DE ARCHIVOS (Deshabilitada si hay texto) */}
+            <div
+              onClick={() => !latexInput && fileInputRef.current.click()}
               className={`
-                border-2 border-dashed rounded-lg p-4 cursor-pointer transition-all duration-300 flex items-center justify-center gap-3 relative group
-                ${file 
-                  ? 'border-[#00ff66] bg-[#00ff66]/5' 
-                  : 'border-neutral-700 hover:border-neutral-500 hover:bg-neutral-800'
+                border-2 border-dashed rounded-lg p-4 transition-all duration-300 flex items-center justify-center gap-3 relative group
+                ${latexInput 
+                    ? 'opacity-50 cursor-not-allowed border-neutral-800 bg-neutral-900/50' 
+                    : 'cursor-pointer border-neutral-700 hover:border-neutral-500 hover:bg-neutral-800'
                 }
+                ${file ? 'border-[#00ff66] bg-[#00ff66]/5' : ''}
               `}
             >
-              <input 
+              <input
                 ref={fileInputRef}
-                type="file" 
-                accept=".pdf,image/*" 
-                className="hidden" 
+                type="file"
+                accept=".pdf,image/*"
+                className="hidden"
+                disabled={!!latexInput}
                 onChange={handleFileSelect}
               />
-              
+
               {file ? (
-                // Estado: Archivo Seleccionado
                 <>
                   <FileText className="text-[#00ff66]" size={24} />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold text-white truncate">{file.name}</p>
                     <p className="text-xs text-[#00ff66]">Listo para escanear</p>
                   </div>
-                  <button 
-                    onClick={handleClearFile}
-                    className="p-1 rounded-full hover:bg-red-500/20 text-neutral-400 hover:text-red-500 transition"
-                  >
+                  <button onClick={handleClearFile} className="p-1 rounded-full hover:bg-red-500/20 text-neutral-400 hover:text-red-500 transition">
                     <X size={18} />
                   </button>
                 </>
               ) : (
-                // Estado: Vacío (Prompt)
                 <>
-                  <Upload className="text-neutral-500 group-hover:text-neutral-300" size={20} />
-                  <span className="text-sm font-medium text-neutral-500 group-hover:text-neutral-300">
-                    Subir PDF o Imagen
+                  <Upload className="text-neutral-500" size={20} />
+                  <span className="text-sm font-medium text-neutral-500">
+                    {latexInput ? "Borra el texto para subir archivo" : "Subir PDF o Imagen"}
                   </span>
                 </>
               )}
+            </div>
+
+            {/* 3. INPUT DE INSTRUCCIONES (Siempre activo) */}
+            <div className="pt-2">
+                <label className="text-xs text-neutral-400 font-bold uppercase mb-2 flex items-center gap-2">
+                    <MessageSquare size={14}/> Instrucciones Adicionales (Opcional)
+                </label>
+                <textarea 
+                    value={instructions}
+                    onChange={(e) => setInstructions(e.target.value)}
+                    placeholder="Ej: Resuelve usando factorización, explica como a un niño de 10 años..."
+                    className="w-full bg-[#0a0a0a] border border-neutral-700 rounded-lg p-3 text-sm text-white focus:border-[#00ff66] focus:outline-none min-h-[80px] resize-none"
+                />
             </div>
 
             {/* Botón Principal */}
@@ -273,16 +312,14 @@ function App() {
               className="w-full bg-[#00ff66] text-black font-extrabold py-3 rounded-lg transition-all duration-300 disabled:opacity-30 disabled:bg-neutral-800 disabled:text-neutral-500 hover:bg-[#33ff88] hover:shadow-[0_0_20px_rgba(0,255,102,0.4)] active:scale-95 flex items-center justify-center gap-2"
             >
               {isScanning ? (
-                  <> <ScanSearch className="animate-pulse" /> Escaneando... </>
+                <> <ScanSearch className="animate-pulse" /> Escaneando... </>
               ) : loading ? (
-                  "Resolviendo..."
-              ) : file ? (
-                  "Escanear y Resolver"
+                "Resolviendo..."
               ) : (
-                  "Explicar Paso a Paso"
+                "Comenzar Tutoría"
               )}
             </button>
-            
+
             <button
               onClick={handleImportJSON}
               disabled={loading}
@@ -292,6 +329,7 @@ function App() {
             </button>
           </div>
 
+          {/* Sidebar de Recursos */}
           {editableSolution && editableSolution[0]?.resources && !isFullscreen && (
               <SidebarRecursos
                 resources={editableSolution[0].resources}
@@ -303,7 +341,6 @@ function App() {
 
         {/* COLUMNA DERECHA: MATH BROWSER */}
         <div className="lg:col-span-8 h-[650px] flex flex-col relative">
-          
           {editableSolution && !isFullscreen && (
             <div className="absolute -top-12 right-0 z-10">
               <button
@@ -320,14 +357,14 @@ function App() {
               {loading ? (
                 <div className="text-center text-neutral-400">
                   <div className="animate-spin w-12 h-12 border-4 border-[#00ff66] border-t-transparent rounded-full mx-auto mb-4 drop-shadow-[0_0_10px_rgba(0,255,102,0.5)]"></div>
-                  <h3 className="text-lg font-bold text-white tracking-wide">Generando Pizarra...</h3>
-                  <p className="text-sm mt-2 text-neutral-500">La IA está estructurando la explicación visual</p>
+                  <h3 className="text-lg font-bold text-white tracking-wide">Analizando Problema...</h3>
+                  <p className="text-sm mt-2 text-neutral-500">Esto puede tardar unos segundos</p>
                 </div>
               ) : (
                 <div className="text-center text-neutral-600">
                   <FileText size={64} className="mx-auto mb-4 opacity-20" />
-                  <h3 className="text-lg font-medium text-neutral-400">Tutor Virtual Listo</h3>
-                  <p className="text-sm mt-1">Sube una foto o escribe una ecuación para empezar.</p>
+                  <h3 className="text-lg font-medium text-neutral-400">Pizarra Limpia</h3>
+                  <p className="text-sm mt-1">Ingresa un problema a la izquierda para comenzar.</p>
                 </div>
               )}
             </div>
@@ -353,16 +390,13 @@ function App() {
       </main>
 
       {/* --- MODALES --- */}
-      
-      {/* 1. Selector de Problemas */}
-      <ProblemSelectorModal 
-          isOpen={showSelector}
-          problems={detectedProblems}
-          onSelect={handleSelectProblem}
-          onCancel={() => setShowSelector(false)}
+      <ProblemSelectorModal
+        isOpen={showSelector}
+        problems={detectedProblems}
+        onSelect={handleSelectProblem}
+        onCancel={() => setShowSelector(false)}
       />
 
-      {/* 2. Editor Visual */}
       {isEditorOpen && editableSolution && (
         <SceneVisualEditor
           sceneData={editableSolution[0]}
@@ -374,4 +408,4 @@ function App() {
   );
 }
 
-export default App;
+export default BoardView;

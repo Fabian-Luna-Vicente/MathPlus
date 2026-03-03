@@ -62,6 +62,11 @@ class DetectedProblemsResponse(BaseModel):
     
 class ProblemList(BaseModel):
     problems: List[str] = Field(description="Lista de los enunciados de los problemas matemáticos extraídos.")
+   
+   
+class api_keys(BaseModel):
+    gemini: Optional[str] = Field(None, description="API Key para Google Gemini")
+    groq: Optional[str] = Field(None, description="API Key para Groq") 
     
 class AgentState(TypedDict):
     user_input: str
@@ -71,3 +76,5 @@ class AgentState(TypedDict):
     final_json: dict
     req:dict
     explain:bool
+    api_keys: api_keys
+    

@@ -74,6 +74,7 @@ IG: [Título]
 
 === 3. SINTAXIS SECCIÓN "CONT" (Fórmulas) ===
 Cada línea representa un elemento y su índice está dado por su orden de aparición (0, 1, 2...).
+PROHIBIDO colocar este simbolo $ ya que rompe el formato,solo coloca la expresion latex sin los simbolos de dolar,el motor de animacion se encargara de renderizarlo correctamente.
 Formato estricto: Tipo | Status | Apart | X | Y | LaTeX
 - Tipo: Siempre "Latex".
 - Status: "show" (solo para la primera ecuación) o "hide" (para el resto).

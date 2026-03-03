@@ -12,7 +12,7 @@ export const useMathTutor = () => {
   const synth = window.speechSynthesis;
   const utteranceRef = useRef(null);
 
-  const solveProblem = async (latex, instructions, file) => {
+  const solveProblem = async (latex, instructions) => {
     const keys=JSON.parse(localStorage.getItem('math_app_keys'))
 
     if(!keys.gemini){
@@ -20,21 +20,20 @@ export const useMathTutor = () => {
         return; // O abrir modal settings
     }
     const headers={
-      'x-gemini-key': keys.gemini,
-      'x-groq-key': keys.groq || ""
+      'x_gemini_key': keys.gemini,
+      'x_groq_key': keys.groq || ""
     }
 
     setLoading(true);
     const formData = new FormData();
-    if (file) formData.append('file', file);
-
     const finalQuery = latex ? `Problema: ${latex}. Instrucciones: ${instructions}` : instructions;
 
     formData.append('query', finalQuery);
-    formData.append('headers', JSON.stringify(headers));
     
     try {
-      const res = await axios.post('http://localhost:8000/api/v1/solve', formData);
+      const res = await axios.post('http://localhost:8000/api/v1/solve', formData,{
+        headers: headers
+      });
       setSolution(res.data);
       setCurrentStep(0);
     } catch (error) {

@@ -7,12 +7,12 @@ async def use_gemini(state: dict,prompt:str):
     """
     Extrae la key que viene del Frontend en cada petición
     """
-    user_keys = state.get("rapi_keysq")
+    user_keys = state.get("api_keys")
     
     if not user_keys or not user_keys.get("gemini"):
         raise ValueError("Falta la API Key de Gemini")
     
-    client = genai.Client(api_key=user_keys)
+    client = genai.Client(api_key=user_keys.get("gemini"))
         
     try:
         response = await client.aio.models.generate_content(
