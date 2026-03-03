@@ -78,3 +78,8 @@ class AgentState(TypedDict):
     explain:bool
     api_keys: api_keys
     
+class ExerciseCreate(BaseModel):
+    titulo: str
+    contenido_json: str # El JSON de la solución stringificado
+    tags: str
+    fecha: str

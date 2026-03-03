@@ -39,15 +39,15 @@ const HomeView = ({ onNavigate, hasApiKeys }) => {
         </button>
 
         {/* Tarjeta: Mis Ejercicios (Placeholder para futuro) */}
-        <button 
-            disabled 
-            className="p-8 bg-[#111] border border-neutral-800 rounded-2xl opacity-50 cursor-not-allowed flex flex-col items-center gap-4"
+       <button 
+            onClick={() => onNavigate('exercises')} // <--- Navegar a exercises
+            className="group p-8 bg-[#111] border border-neutral-800 rounded-2xl hover:border-[#00ff66] hover:bg-[#00ff66]/5 transition-all duration-300 flex flex-col items-center gap-4 cursor-pointer shadow-xl"
         >
-            <div className="p-4 rounded-full bg-neutral-900 text-neutral-500">
+            <div className="p-4 rounded-full bg-neutral-900 group-hover:bg-[#00ff66] group-hover:text-black transition-colors text-neutral-400">
                 <BookOpen size={32} />
             </div>
-            <h3 className="text-xl font-bold text-neutral-400">Mis Ejercicios</h3>
-            <p className="text-sm text-neutral-600">Próximamente: Historial local</p>
+            <h3 className="text-xl font-bold text-white">Mis Ejercicios</h3>
+            <p className="text-sm text-neutral-500">Tu biblioteca local</p>
         </button>
 
       </div>

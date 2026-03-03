@@ -31,14 +31,14 @@ const MathBrowser = ({ initialScene, onToggleFullscreen, isFullscreen }) => {
         // Concatenamos la duda del usuario al contexto
         const finalContext = `Solicitud del usuario. DUDA ESPECÍFICA DEL ALUMNO: "${userQuery || 'Explícame este paso en general'}"`;
 
-        const response = await fetch('http://localhost:8000/explain_step', { // Verifica tu puerto/ruta
+        const response = await fetch('http://localhost:8000/api/v1/explain_step', { 
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 step_index: stepIndex,
                 before_tex: currentEquation,
                 after_tex: nextEquation,
-                context: finalContext // <--- AQUÍ VA LA DUDA
+                context: finalContext 
             })
         });
         

@@ -3,33 +3,40 @@ import React, { useState, useEffect } from "react";
 import HomeView from "./components/HomeView";
 import SettingsView from "./components/SettingsView";
 import BoardView from "./components/BoardView"; // <--- Tu antigua App.jsx encapsulada
+import ExercisesView from "./components/ExercisesView";
 
 function App() {
   // --- ESTADO DE NAVEGACIÓN ---
   const [currentView, setCurrentView] = useState('home'); // 'home', 'settings', 'board'
+  const [exerciseToLoad, setExerciseToLoad] = useState(null);
   
   // --- ESTADO DE CONFIGURACIÓN ---
   const [apiKeys, setApiKeys] = useState({ gemini: '', groq: '' });
 
   // Cargar keys al iniciar
-  useEffect(() => {
+ useEffect(() => {
     const saved = localStorage.getItem('math_app_keys');
     if (saved) setApiKeys(JSON.parse(saved));
   }, []);
-
   const hasKeys = !!apiKeys.gemini;
 
-  // --- NAVEGACIÓN ---
   const navigateTo = (view) => {
-    if (view === 'board' && !hasKeys) {
-        // Si intenta ir a la pizarra sin keys, lo mandamos a configuración con aviso
+    if (view === 'board' && !hasKeys && !exerciseToLoad) { // Permitimos entrar si carga ejercicio local
         alert("⚠️ Necesitas configurar tu API Key de Gemini para usar la pizarra.");
         setCurrentView('settings');
         return;
     }
+    // Si vamos a la pizarra "limpia", borramos el ejercicio cargado
+    if (view === 'board' && currentView !== 'exercises') {
+        setExerciseToLoad(null);
+    }
     setCurrentView(view);
   };
 
+  const handleLoadExercise = (data) => {
+      setExerciseToLoad(data);
+      setCurrentView('board');
+  };
   // --- RENDERIZADO CONDICIONAL ---
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-neutral-200 font-sans selection:bg-[#00ff66] selection:text-black">
@@ -56,12 +63,20 @@ function App() {
             <SettingsView onBack={() => navigateTo('home')} onSaveKeys={setApiKeys} />
         )}
 
+        {currentView === 'exercises' && (
+            <ExercisesView 
+                onBack={() => navigateTo('home')} 
+                onLoadExercise={handleLoadExercise} 
+            />
+        )}
+
         {currentView === 'board' && (
             // Aquí renderizas tu componente de pizarra antiguo
             // Le pasamos las keys para que el hook useMathTutor las tenga frescas si es necesario
             <BoardView 
                 onBack={() => navigateTo('home')} 
                 apiKeys={apiKeys} 
+                initialData={exerciseToLoad}
             />
         )}
       </div>

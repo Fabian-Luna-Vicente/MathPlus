@@ -11,8 +11,8 @@ engine = create_engine(sqlite_url)
 class Ejercicio(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     titulo: str
-    contenido_json: str  # Aquí guardas el JSON completo de la escena
-    tags: str # Para filtrar (ej: "algebra, derivas")
+    contenido_json: str 
+    tags: str="general" # Para filtrar (ej: "algebra, derivas")
     fecha: str
 
 def create_db_and_tables():

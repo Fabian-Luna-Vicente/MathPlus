@@ -7,7 +7,7 @@ import {
   ScanSearch,
   Upload,
   X,
-  MessageSquare // Nuevo icono para instrucciones
+  MessageSquare ,Save// Nuevo icono para instrucciones
 } from "lucide-react";
 
 // --- COMPONENTES ---
@@ -27,7 +27,7 @@ import {
   calculateArrowPositions,
 } from "../../utils/latexFixer";
 
-function BoardView({ onBack }) { // Recibimos onBack si quieres botón volver
+function BoardView({ onBack ,initialData}) { // Recibimos onBack si quieres botón volver
   // --- ESTADOS PRINCIPALES ---
   const [latexInput, setLatexInput] = useState("");
   const [instructions, setInstructions] = useState(""); 
@@ -70,6 +70,16 @@ function BoardView({ onBack }) { // Recibimos onBack si quieres botón volver
       document.exitFullscreen();
     }
   };
+  // EFECTO PARA CARGAR DATOS INICIALES
+  useEffect(() => {
+      if (initialData) {
+          let p = fixLatexHighlighting(initialData);
+          p = preventCollisions(p);
+          p = calculateArrowPositions(p);
+          p = calculateFramePositions(p);
+          setEditableSolution([p]);
+      }
+  }, [initialData]);
 
   // --- EFECTO: PROCESAR SOLUCIÓN DEL BACKEND ---
   useEffect(() => {
@@ -117,7 +127,27 @@ function BoardView({ onBack }) { // Recibimos onBack si quieres botón volver
           if (fileInputRef.current) fileInputRef.current.value = "";
       }
   };
+const handleSaveToLibrary = async () => {
+      if (!editableSolution) return;
 
+      const titulo = prompt("Asigna un nombre a este ejercicio:", "Resolución Matemática");
+      if (!titulo) return;
+
+      const payload = {
+          titulo: titulo,
+          contenido_json: JSON.stringify(editableSolution[0]), // Guardamos la primera escena (o todo el array si prefieres)
+          tags: "Álgebra", // Podrías pedir esto también
+          fecha: new Date().toLocaleDateString()
+      };
+
+      try {
+          await axios.post("http://localhost:8000/api/v1/exercises", payload);
+          alert("✅ ¡Ejercicio guardado en tu biblioteca!");
+      } catch (error) {
+          console.error(error);
+          alert("Error al guardar.");
+      }
+  };
   const handleScanAndSolve = async () => {
     const keys = JSON.parse(localStorage.getItem("math_app_keys"));
 
@@ -327,6 +357,13 @@ function BoardView({ onBack }) { // Recibimos onBack si quieres botón volver
             >
               <ClipboardPaste size={18} /> Importar JSON
             </button>
+            <button
+          onClick={handleSaveToLibrary}
+          disabled={!editableSolution} // Solo activo si hay solución
+          className="flex items-center justify-center gap-2 bg-neutral-800 text-white font-bold py-3 rounded-lg transition-all hover:bg-neutral-700 disabled:opacity-30 disabled:cursor-not-allowed text-sm"
+        >
+          <Save size={16} /> Guardar
+        </button>
           </div>
 
           {/* Sidebar de Recursos */}
