@@ -2,7 +2,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form,Header
 from fastapi.responses import FileResponse
-from app.models.schemas import DetectedProblemsResponse, ExerciseCreate, ExplainRequest, SolucionMath
+from app.models.schemas import DetectedProblemsResponse, ExerciseCreate, ExerciseUpdate, ExplainRequest, SolucionMath
 from app.agents.graph import app_graph
 from app.services.ocr import extract_text_from_pdf
 from app.services.pdf_gen import generate_solution_pdf
@@ -118,7 +118,7 @@ def read_exercises(session: Session = Depends(get_session)):
 
 @router.post("/exercises")
 def create_exercise(exercise: ExerciseCreate, session: Session = Depends(get_session)):
-    db_exercise = Ejercicio.from_orm(exercise)
+    db_exercise = Ejercicio.model_validate(exercise)
     session.add(db_exercise)
     session.commit()
     session.refresh(db_exercise)
@@ -132,3 +132,24 @@ def delete_exercise(exercise_id: int, session: Session = Depends(get_session)):
     session.delete(exercise)
     session.commit()
     return {"ok": True}
+
+@router.put("/exercises/{exercise_id}")
+def update_exercise(
+    exercise_id: int, 
+    exercise_update: ExerciseUpdate, 
+    session: Session = Depends(get_session)
+):
+    # Buscar el ejercicio
+    db_exercise = session.get(Ejercicio, exercise_id)
+    if not db_exercise:
+        raise HTTPException(status_code=404, detail="Ejercicio no encontrado")
+    
+    # Actualizar solo los campos enviados (excluyendo nulos)
+    exercise_data = exercise_update.dict(exclude_unset=True)
+    for key, value in exercise_data.items():
+        setattr(db_exercise, key, value)
+    
+    session.add(db_exercise)
+    session.commit()
+    session.refresh(db_exercise)
+    return db_exercise

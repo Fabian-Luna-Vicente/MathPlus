@@ -9,7 +9,7 @@ function App() {
   // --- ESTADO DE NAVEGACIÓN ---
   const [currentView, setCurrentView] = useState('home'); // 'home', 'settings', 'board'
   const [exerciseToLoad, setExerciseToLoad] = useState(null);
-  
+  const [currentExerciseId, setCurrentExerciseId] = useState(null);
   // --- ESTADO DE CONFIGURACIÓN ---
   const [apiKeys, setApiKeys] = useState({ gemini: '', groq: '' });
 
@@ -33,10 +33,12 @@ function App() {
     setCurrentView(view);
   };
 
-  const handleLoadExercise = (data) => {
+  const handleLoadExercise = (data,id) => {
       setExerciseToLoad(data);
-      setCurrentView('board');
+      setCurrentView('board');  
+      setCurrentExerciseId(id);
   };
+
   // --- RENDERIZADO CONDICIONAL ---
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-neutral-200 font-sans selection:bg-[#00ff66] selection:text-black">
@@ -77,6 +79,7 @@ function App() {
                 onBack={() => navigateTo('home')} 
                 apiKeys={apiKeys} 
                 initialData={exerciseToLoad}
+                currentExerciseId={currentExerciseId}
             />
         )}
       </div>

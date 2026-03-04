@@ -101,6 +101,7 @@ Es OBLIGATORIO extraer y crear una tarjeta de recurso para CADA propiedad matem�
 1. Leyes y Teoremas (Logaritmos, exponentes, derivadas, etc.).
 2. Identidades Algebraicas y Productos Notables (¡NUNCA omitas cosas como la Diferencia de Cuadrados, Binomio al Cuadrado, factorizaciones, etc.!).
 3. Fórmulas clave (Fórmula cuadrática, identidades trigonométricas).
+4.No coloques nunca aqui texto plano aqui solo expresiones matematicas en formato LaTeX .
 
 Formato estricto: Pasos | Título | LaTeX
 - Pasos: Índices numéricos (0-based) separados por comas de los pasos en INSTS donde se aplica. Ej: 3, 11
