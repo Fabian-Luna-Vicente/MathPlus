@@ -1,6 +1,6 @@
 
 from langgraph.graph import StateGraph, END
-from app.models.schemas import AgentState
+from app.models.agents_schema import AgentState
 from app.agents.nodes.route import route_node
 from app.agents.nodes.corrector import corrector_node
 from app.agents.nodes.explainer import explainer_node

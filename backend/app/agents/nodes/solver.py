@@ -1,7 +1,7 @@
 import time
-from app.models.schemas import AgentState
+from app.models.agents_schema import AgentState
 from app.agents.prompts import SOLVER_PROMPT
-from app.services.Models_Keys import use_llm_versatile
+from app.utils.ai_models_with_keys import use_llm_versatile
 
 async def solver_node(state: AgentState):
     """Resuelve el problema matemático muy rápido y guarda la solución cruda."""

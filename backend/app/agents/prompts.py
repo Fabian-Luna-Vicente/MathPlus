@@ -1,4 +1,3 @@
-# app/agents/prompts.py
 def get_explainer_prompt(req):
     return f"""
     Actúa como un profesor de matemáticas experto y paciente. Un estudiante se ha quedado atascado en un paso específico de un problema más grande y necesita una explicación profunda de qué ocurrió exactamente ahí.

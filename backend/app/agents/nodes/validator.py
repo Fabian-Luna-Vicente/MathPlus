@@ -1,7 +1,7 @@
 import time
-from app.models.schemas import AgentState
+from app.models.agents_schema import AgentState
 from app.agents.prompts import VALIDATOR_PROMPT
-from app.services.Models_Keys import use_llm_fast
+from app.utils.ai_models_with_keys import use_llm_fast
 
 async def validator_node(state: AgentState):
     """Verifica si el input es matemáticas."""

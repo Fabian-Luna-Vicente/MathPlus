@@ -1,13 +1,10 @@
-import os
 from google import genai
 from google.genai import types
-from pydantic import BaseModel, Field
 from typing import List
+from app.models.problems_schema import ProblemList
 
-from app.models.schemas import ProblemList
-
-def split_problems_with_ai(file_content: bytes, mime_type: str,api_key:str) -> List[str]:
- 
+def split_problems_with_ai(file_content: bytes, file,api_key:str) -> List[str]:
+    mime_type = file.content_type
     if not api_key:
         print("Error: GEMINI_API_KEY no encontrada.")
         return []

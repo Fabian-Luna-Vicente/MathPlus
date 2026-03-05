@@ -1,9 +1,9 @@
 
-from app.models.schemas import AgentState
+from app.models.agents_schema import AgentState
 from app.agents.prompts import corrector_prompt
-from app.services.Models_Keys import use_llm_versatile
-from app.services.JsonParser import parse_text_to_json
-from app.services.sanitazer import sanitize_latex_highlights
+from app.utils.ai_models_with_keys import use_llm_versatile
+from app.utils.JsonParser import parse_text_to_json
+from app.utils.sanitazer import sanitize_latex_highlights
 
 async def corrector_node(state: AgentState):
     """Corrige la solución si es necesario (opcional)."""

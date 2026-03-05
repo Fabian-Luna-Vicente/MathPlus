@@ -1,24 +1,21 @@
 from contextlib import asynccontextmanager
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.router import router as api_router
-from app.core.config import settings # Asume que tienes tus settings aquí
+from backend.app.api.agents_router import agents_router
+from backend.app.api.exercises_router import exercises_router
 import uvicorn
-
 from app.database import create_db_and_tables
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("📂 Creando/Verificando base de datos SQLite...")
-    create_db_and_tables() # <--- AQUÍ SE CREA EL ARCHIVO .db
+    print("Creando/Verificando base de datos SQLite...")
+    create_db_and_tables()
     yield
-    print("👋 Cerrando conexión...")
+    print("Cerrando conexión...")
 
 
 app = FastAPI(title="AI Math Tutor Backend",version="1.0.0",lifespan=lifespan)
 
-# Configuración CORS (Vital para conectar con React)
 origins = [
     "http://localhost:3000",
     "http://localhost:5173",
@@ -34,8 +31,8 @@ app.add_middleware(
 )
 
 
-# Incluir Routers
-app.include_router(api_router, prefix="/api/v1")
+app.include_router(exercises_router, prefix="/api/v1/exercises")
+app.include_router(agents_router, prefix="/api/v1/agents")
 
 if __name__ == "__main__":
 
