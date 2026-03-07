@@ -42,7 +42,7 @@ export const useMathTutor = () => {
     } finally {
       setLoading(false);
     }
-  };
+  };  
 
   const cleanTextForSpeech = (text) => {
     if (!text) return "";

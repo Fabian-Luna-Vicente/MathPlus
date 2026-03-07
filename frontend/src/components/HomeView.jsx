@@ -1,7 +1,15 @@
-import React from 'react';
+import {useEffect} from 'react';
 import { BookOpen, Settings, Play, AlertTriangle } from 'lucide-react';
+import {checkForUpdates} from '../../utils/updateHandler.js'
 
-const HomeView = ({ onNavigate, hasApiKeys }) => {
+
+const HomeView = ({ onNavigate, hasApiKeys,setUpdateStatus,setRemoteVersion,setDownloadUrl }) => {
+
+  useEffect(() => {
+    checkForUpdates(setUpdateStatus,setRemoteVersion,setDownloadUrl)
+  }, [])
+  
+
   return (
     <div className="flex flex-col items-center justify-center min-h-[80vh] text-center space-y-12 animate-in fade-in duration-500">
       

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Save, ChevronLeft, Globe, Key, RefreshCw } from 'lucide-react';
-
-const SettingsView = ({ onBack, onSaveKeys }) => {
+import {checkForUpdates,CURRENT_VERSION} from '../../utils/updateHandler'
+ 
+const SettingsView = ({ onBack, onSaveKeys , updateStatus,remoteVersion,downloadUrl}) => {
     // Estado local para el formulario
     const [keys, setKeys] = useState({ gemini: '', groq: '' });
     const [lang, setLang] = useState('es');
@@ -14,6 +15,13 @@ const SettingsView = ({ onBack, onSaveKeys }) => {
         const savedLang = localStorage.getItem('math_app_lang');
         if (savedLang) setLang(savedLang);
     }, []);
+
+
+    const handleDownload=()=>{
+        if (downloadUrl) {
+            window.open(downloadUrl,'_blank')
+        }
+    }
 
     const handleSave = () => {
         localStorage.setItem('math_app_keys', JSON.stringify(keys));
@@ -92,16 +100,53 @@ const SettingsView = ({ onBack, onSaveKeys }) => {
                 </div>
 
                 {/* Sección Actualizaciones */}
-                <div className="bg-[#111] border border-neutral-800 p-6 rounded-2xl flex justify-between items-center">
-                    <div>
-                        <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                            <RefreshCw className="text-purple-400" size={20}/> Actualizaciones
-                        </h3>
-                        <p className="text-sm text-neutral-500">Versión actual: v1.0.0 (Beta)</p>
+                <div className="bg-[#111] border border-neutral-800 p-6 rounded-2xl">
+                    <div className="flex justify-between items-center mb-4">
+                        <div>
+                            <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                                <RefreshCw className={updateStatus === 'checking' ? "animate-spin text-purple-400" : "text-purple-400"} size={20}/> 
+                                Actualizaciones
+                            </h3>
+                            <p className="text-sm text-neutral-500">Versión actual: v{CURRENT_VERSION}</p>
+                        </div>
+                        
+                        {/* Botón Principal */}
+                        {updateStatus === 'available' ? (
+                            <button 
+                                onClick={handleDownload}
+                                className="px-4 py-2 bg-[#00ff66] text-black text-sm font-bold rounded-lg hover:bg-[#33ff88] transition flex items-center gap-2 animate-pulse"
+                            >
+                                <Download size={16}/> Descargar v{remoteVersion}
+                            </button>
+                        ) : (
+                            <button 
+                                onClick={checkForUpdates}
+                                disabled={updateStatus === 'checking'}
+                                className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-white text-sm font-bold rounded-lg transition disabled:opacity-50"
+                            >
+                                {updateStatus === 'checking' ? 'Buscando...' : 'Buscar Updates'}
+                            </button>
+                        )}
                     </div>
-                    <button className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-white text-sm font-bold rounded-lg transition">
-                        Buscar Updates
-                    </button>
+                    {/* Mensajes de Estado */}
+                    {updateStatus === 'latest' && (
+                        <div className="bg-green-900/20 border border-green-900/50 p-3 rounded-lg flex items-center gap-2 text-green-400 text-sm">
+                            <CheckCircle size={16} /> ¡Tienes la última versión!
+                        </div>
+                    )}
+                    
+                    {updateStatus === 'error' && (
+                        <div className="bg-red-900/20 border border-red-900/50 p-3 rounded-lg flex items-center gap-2 text-red-400 text-sm">
+                            <AlertCircle size={16} /> Error al conectar con el servidor.
+                        </div>
+                    )}
+
+                    {updateStatus === 'available' && (
+                        <div className="bg-purple-900/20 border border-purple-900/50 p-3 rounded-lg text-purple-300 text-sm">
+                            <p className="font-bold mb-1">¡Nueva versión disponible!</p>
+                            <p>Se ha detectado la versión {remoteVersion}. Descárgala para obtener las nuevas funciones.</p>
+                        </div>
+                    )}
                 </div>
 
                 {/* Botón Guardar */}

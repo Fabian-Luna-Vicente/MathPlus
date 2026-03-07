@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import axios from 'axios';
 import {
   FileText,
@@ -8,9 +8,8 @@ import {
   X,
   MessageSquare,
   Save,
-  Download,   // Icono Exportar
-  FileJson,   // Icono Importar JSON
-  Trash2      // Icono Limpiar
+  Download,   
+  FileJson,   
 } from "lucide-react";
 
 // --- COMPONENTES ---
@@ -146,11 +145,9 @@ const [showSaveModal, setShowSaveModal] = useState(false);
 
   // --- ACCIONES PRINCIPALES (SCAN / SOLVE) ---
   const handleScanAndSolve = async () => {
-    const keys = JSON.parse(localStorage.getItem("math_app_keys"));
-    if (!keys || !keys.gemini) {
-      alert("⚠️ Necesitas configurar tu API Key de Gemini primero.");
-      return; 
-    }
+    
+    const key=verifyGeminiKey()
+    if (!key)return
 
     if (!file && latexInput) {
       solveProblem(latexInput, instructions);
@@ -161,22 +158,14 @@ const [showSaveModal, setShowSaveModal] = useState(false);
     if (file) {
       setIsScanning(true);
       try {
-        const formData = new FormData();
-        formData.append("file", file);
-        
-        const response = await axios.post(
-          "http://localhost:8000/api/v1/scan_problems",
-          formData,
-          { headers: { "x-gemini-key": keys.gemini } }
-        );
+        const problems= await scan_problems(file)
 
-        const data = response.data;
-        if (data.problems && data.problems.length > 0) {
-          if (data.problems.length > 1) {
-            setDetectedProblems(data.problems);
+        if (problems && problems.length > 0) {
+          if (problems.length > 1) {
+            setDetectedProblems(problems);
             setShowSelector(true);
           } else {
-            solveProblem(data.problems[0], instructions);
+            solveProblem(problems[0], instructions);
             resetNavigation();
           }
         } else {

@@ -13,6 +13,10 @@ function App() {
   // --- ESTADO DE CONFIGURACIÓN ---
   const [apiKeys, setApiKeys] = useState({ gemini: '', groq: '' });
 
+        const [updateStatus, setUpdateStatus] = useState('idle'); // idle, checking, available, latest, error
+        const [remoteVersion, setRemoteVersion] = useState(null);
+        const [downloadUrl, setDownloadUrl] = useState("");
+
   // Cargar keys al iniciar
  useEffect(() => {
     const saved = localStorage.getItem('math_app_keys');
@@ -58,11 +62,11 @@ function App() {
 
       <div className="pt-16 pb-8 px-4">
         {currentView === 'home' && (
-            <HomeView onNavigate={navigateTo} hasApiKeys={hasKeys} />
+            <HomeView onNavigate={navigateTo} hasApiKeys={hasKeys} setUpdateStatus={setUpdateStatus} setRemoteVersion={setRemoteVersion}setDownloadUrl={setDownloadUrl} />
         )}
 
         {currentView === 'settings' && (
-            <SettingsView onBack={() => navigateTo('home')} onSaveKeys={setApiKeys} />
+            <SettingsView onBack={() => navigateTo('home')} onSaveKeys={setApiKeys}  updateStatus={updateStatus} remoteVersion={remoteVersion} downloadUrl={downloadUrl} />
         )}
 
         {currentView === 'exercises' && (
