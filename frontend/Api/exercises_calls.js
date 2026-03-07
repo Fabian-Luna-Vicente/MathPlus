@@ -39,3 +39,15 @@ export const getExercises = async () => {
             return []; 
         } 
     };
+
+export const deleteExercise = async (id) => {
+
+        if (!window.confirm("¿Estás seguro de que quieres eliminar este ejercicio permanentemente?")) return;
+        
+        try {
+            await axios.delete(`http://localhost:8000/api/v1/exercises/exercises/${id}`);
+        } catch (e) {
+            alert("Error al intentar borrar el ejercicio.",e);
+        }
+
+}

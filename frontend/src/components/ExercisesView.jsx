@@ -11,7 +11,7 @@ import {
     Filter, 
     X
 } from 'lucide-react';
-import {getExercises} from '../../Api/exercises_calls'
+import {getExercises,deleteExercise} from '../../Api/exercises_calls'
 
 const ExercisesView = ({ onBack, onLoadExercise }) => {
     const [exercises, setExercises] = useState([]);
@@ -27,14 +27,8 @@ const ExercisesView = ({ onBack, onLoadExercise }) => {
 
     const handleDelete = async (e, id) => {
         e.stopPropagation();
-        if (!window.confirm("¿Estás seguro de que quieres eliminar este ejercicio permanentemente?")) return;
-        
-        try {
-            await axios.delete(`http://localhost:8000/api/v1/exercises/${id}`);
-            setExercises(prev => prev.filter(ex => ex.id !== id));
-        } catch (e) {
-            alert("Error al intentar borrar el ejercicio.",e);
-        }
+        await deleteExercise(id)
+        setExercises(prev => prev.filter(ex => ex.id !== id));   
     };
 
     const uniqueTags = useMemo(() => {
