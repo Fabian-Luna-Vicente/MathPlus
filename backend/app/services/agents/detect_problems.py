@@ -1,13 +1,13 @@
 
 from fastapi import HTTPException
-from backend.app.utils import file_validator
+from app.utils.file_validator import file_validator
 from app.utils.ProblemSplitterAI import split_problems_with_ai
 
 
 async def detect_problems(file, api_key):    
     try:
         content = await file.read()
-        file_validator(file)     
+        await file_validator(file)     
         detected_problems = split_problems_with_ai(content, file,api_key=api_key)
         
         if not detected_problems:

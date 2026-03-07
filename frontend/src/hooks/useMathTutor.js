@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import {parseTextToJSON} from '../../utils/textParser'
+import { parseTextToJSON } from '../../utils/textParser'
+import { verifyGeminiAndGroqKey } from '../../utils/keyVerifier'
 import axios from 'axios';
 
 export const useMathTutor = () => {
@@ -7,21 +8,18 @@ export const useMathTutor = () => {
   const [solution, setSolution] = useState(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  
+
   // Referencia a la síntesis de voz del navegador
   const synth = window.speechSynthesis;
   const utteranceRef = useRef(null);
 
   const solveProblem = async (latex, instructions) => {
-    const keys=JSON.parse(localStorage.getItem('math_app_keys'))
+    const keys = verifyGeminiAndGroqKey()
+    if (!keys) return
 
-    if(!keys.gemini){
-      alert("⚠️ Necesitas configurar tu API Key de Gemini primero.");
-        return; // O abrir modal settings
-    }
-    const headers={
-      'x_gemini_key': keys.gemini,
-      'x_groq_key': keys.groq || ""
+    const headers = {
+      'x-gemini-key': keys.gemini,
+      'x-groq-key': keys.groq || ""
     }
 
     setLoading(true);
@@ -29,9 +27,9 @@ export const useMathTutor = () => {
     const finalQuery = latex ? `Problema: ${latex}. Instrucciones: ${instructions}` : instructions;
 
     formData.append('query', finalQuery);
-    
+
     try {
-      const res = await axios.post('http://localhost:8000/api/v1/agents/solve', formData,{
+      const res = await axios.post('http://localhost:8000/api/v1/agents/solve', formData, {
         headers: headers
       });
       setSolution(res.data);
@@ -42,7 +40,7 @@ export const useMathTutor = () => {
     } finally {
       setLoading(false);
     }
-  };  
+  };
 
   const cleanTextForSpeech = (text) => {
     if (!text) return "";
@@ -57,7 +55,7 @@ export const useMathTutor = () => {
   // Efecto: Reproducir voz cuando cambia el paso
   useEffect(() => {
     if (!solution || !isPlaying) return;
-if (!solution.pasos[currentStep]) return;
+    if (!solution.pasos[currentStep]) return;
     // Cancelar audio anterior
     synth.cancel();
 

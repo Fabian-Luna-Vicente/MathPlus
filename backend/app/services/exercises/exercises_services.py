@@ -1,6 +1,6 @@
 from sqlmodel import Session
 
-from app.repository.exercises import exercises_repository
+from app.repository.exercises.exercises_repository import exercises_repository
 from app.models.exercises_schema import ExerciseCreate, ExerciseUpdate
 
 class exercises_services:

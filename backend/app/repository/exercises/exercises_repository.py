@@ -3,11 +3,10 @@ from sqlmodel import Session, select
 from fastapi import HTTPException
 from sqlmodel import Session, select
 from app.database import Ejercicio
-from app.models.schemas import ExerciseCreate, ExerciseUpdate
+from app.models.exercises_schema import ExerciseCreate, ExerciseUpdate
 
 
-class exercises_repository:
-    
+class exercises_repository:   
     def __init__(self):
         pass
 

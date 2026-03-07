@@ -3,6 +3,7 @@ import HomeView from "./components/HomeView";
 import SettingsView from "./components/SettingsView";
 import BoardView from "./components/BoardView"; 
 import ExercisesView from "./components/ExercisesView";
+import {checkForUpdates} from '../utils/updateHandler'
 
 function App() {
   // --- ESTADO DE NAVEGACIÓN ---
@@ -59,11 +60,11 @@ function App() {
 
       <div className="pt-16 pb-8 px-4">
         {currentView === 'home' && (
-            <HomeView onNavigate={navigateTo} hasApiKeys={hasKeys} setUpdateStatus={setUpdateStatus} setRemoteVersion={setRemoteVersion}setDownloadUrl={setDownloadUrl} />
+            <HomeView onNavigate={navigateTo} hasApiKeys={hasKeys} setUpdateStatus={setUpdateStatus} setRemoteVersion={setRemoteVersion} setDownloadUrl={setDownloadUrl} updateStatus={updateStatus} />
         )}
 
         {currentView === 'settings' && (
-            <SettingsView onBack={() => navigateTo('home')} onSaveKeys={setApiKeys}  updateStatus={updateStatus} remoteVersion={remoteVersion} downloadUrl={downloadUrl} />
+            <SettingsView onBack={() => navigateTo('home')} onSaveKeys={setApiKeys} updateStatus={updateStatus} remoteVersion={remoteVersion} downloadUrl={downloadUrl} onCheckUpdates={() => checkForUpdates(setUpdateStatus, setRemoteVersion, setDownloadUrl)} />
         )}
 
         {currentView === 'exercises' && (

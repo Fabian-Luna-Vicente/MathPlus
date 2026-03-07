@@ -9,7 +9,8 @@ import {
   MessageSquare,
   Save,
   Download,   
-  FileJson,   
+  FileJson,
+  ChevronLeft,   
 } from "lucide-react";
 
 // --- COMPONENTES ---
@@ -182,6 +183,11 @@ const [showSaveModal, setShowSaveModal] = useState(false);
     resetNavigation();
   };
 
+  const handleResourceClick = (resource) => {
+    console.log("Recurso clickeado:", resource);
+    // Aquí podrías implementar scroll al paso o abrir un modal con más info
+  };
+
   const handleSaveClick = () => {
       if (!editableSolution) return;
       setShowSaveModal(true); 
@@ -250,14 +256,18 @@ const [showSaveModal, setShowSaveModal] = useState(false);
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-neutral-200 p-8 font-sans selection:bg-[#00ff66] selection:text-black relative animate-in fade-in duration-500">
       
-      {/* Botón Volver */}
-      {onBack && (
-          <button onClick={onBack} className="absolute top-8 left-8 text-neutral-500 hover:text-white transition">
-              &larr; Volver al Inicio
-          </button>
-      )}
 
-      <header className="max-w-6xl mx-auto mb-8 text-center md:text-left">
+
+      <header className="max-w-6xl mx-auto mb-8 flex items-center gap-4">
+        {onBack && (
+          <button 
+            onClick={onBack} 
+            className="p-2 hover:bg-neutral-800 rounded-full transition text-neutral-400 hover:text-white"
+            title="Volver al Inicio"
+          >
+            <ChevronLeft size={28} />
+          </button>
+        )}
         <h1 className="text-4xl font-extrabold text-white tracking-tight">
           MathPlus <span className="text-[#00ff66]">Board</span>
         </h1>

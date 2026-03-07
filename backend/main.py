@@ -1,8 +1,8 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.app.api.agents_router import agents_router
-from backend.app.api.exercises_router import exercises_router
+from app.api.agents_router import agents_router
+from app.api.exercises_router import exercises_router
 import uvicorn
 from app.database import create_db_and_tables
 

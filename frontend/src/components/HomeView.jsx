@@ -3,7 +3,7 @@ import { BookOpen, Settings, Play, AlertTriangle } from 'lucide-react';
 import {checkForUpdates} from '../../utils/updateHandler.js'
 
 
-const HomeView = ({ onNavigate, hasApiKeys,setUpdateStatus,setRemoteVersion,setDownloadUrl }) => {
+const HomeView = ({ onNavigate, hasApiKeys, setUpdateStatus, setRemoteVersion, setDownloadUrl, updateStatus }) => {
 
   useEffect(() => {
     checkForUpdates(setUpdateStatus,setRemoteVersion,setDownloadUrl)
@@ -63,11 +63,14 @@ const HomeView = ({ onNavigate, hasApiKeys,setUpdateStatus,setRemoteVersion,setD
       {/* Botón Configuración */}
       <button 
         onClick={() => onNavigate('settings')}
-        className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors px-6 py-2 rounded-full hover:bg-white/5"
+        className="relative flex items-center gap-2 text-neutral-400 hover:text-white transition-colors px-6 py-2 rounded-full hover:bg-white/5"
       >
         <Settings size={18} />
         <span className="font-medium">Configuración y API Keys</span>
         {!hasApiKeys && <span className="w-2 h-2 rounded-full bg-amber-500" />}
+        {updateStatus === 'available' && (
+          <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.6)]" />
+        )}
       </button>
       
     </div>

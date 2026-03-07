@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
-from backend.app.services.exercises.exercises_services import exercises_services
+from app.services.exercises.exercises_services import exercises_services
 from app.database import get_session
 from app.models.exercises_schema import ExerciseCreate, ExerciseUpdate
 

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Save, ChevronLeft, Globe, Key, RefreshCw } from 'lucide-react';
+import { Save, ChevronLeft, Globe, Key, RefreshCw, AlertCircle, Download, CheckCircle } from 'lucide-react';
 import {checkForUpdates,CURRENT_VERSION} from '../../utils/updateHandler'
  
-const SettingsView = ({ onBack, onSaveKeys , updateStatus,remoteVersion,downloadUrl}) => {
+const SettingsView = ({ onBack, onSaveKeys, updateStatus, remoteVersion, downloadUrl, onCheckUpdates }) => {
     // Estado local para el formulario
     const [keys, setKeys] = useState({ gemini: '', groq: '' });
     const [lang, setLang] = useState('es');
@@ -120,7 +120,7 @@ const SettingsView = ({ onBack, onSaveKeys , updateStatus,remoteVersion,download
                             </button>
                         ) : (
                             <button 
-                                onClick={checkForUpdates}
+                                onClick={onCheckUpdates}
                                 disabled={updateStatus === 'checking'}
                                 className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-white text-sm font-bold rounded-lg transition disabled:opacity-50"
                             >
