@@ -40,7 +40,7 @@ export const calculateFramePositions = (scene) => {
             console.log("marco")
             const target = elementMap[el.targetId];
 
-            // Si el objetivo existe y tiene coordenadas, aplicamos TU FÓRMULA
+            // Si el objetivo existe y tiene coordenadas, aplicamos la formula
             if (target && target.x !== undefined && target.y !== undefined) {
                 
                 const contenido = target.cont || "";
@@ -64,7 +64,7 @@ export const calculateFramePositions = (scene) => {
                 const alturaExtra = numFracciones * 20;
                 const y2 = target.y + alturaExtra + HEIGHT_BASE + BASE_PADDING+40;
 
-                console.log(`📐 Marco ajustado para ${el.targetId}:`, { x1, x2, y1, y2 });
+                console.log(` Marco ajustado para ${el.targetId}:`, { x1, x2, y1, y2 });
 
                 // Retornamos el marco con las nuevas coordenadas, borrando las viejas
                 return {

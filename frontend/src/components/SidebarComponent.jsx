@@ -59,11 +59,6 @@ const SidebarRecursos = ({ resources, currentStepIdx, onResourceClick }) => {
                     : 'bg-[#050505] border-transparent text-neutral-500 group-hover:bg-[#080808] group-hover:border-neutral-800 shadow-inner'
                 }
               `}>
-                {/* CAMBIO AQUI:
-                   1. Eliminado 'pointer-events-none'
-                   2. Agregado 'pointer-events-auto' (opcional, es el default)
-                   3. Agregado stopPropagation para que hacer click en el scroll no active la tarjeta
-                */}
                 <div 
                     className="overflow-x-auto text-sm md:text-sm w-full custom-scrollbar pb-1 cursor-text"
                     onClick={(e) => e.stopPropagation()} 

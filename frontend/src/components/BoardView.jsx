@@ -27,6 +27,9 @@ import {
   preventCollisions,
   calculateArrowPositions,
 } from "../../utils/latexFixer";
+import {verifyGeminiKey} from '../../utils/keyVerifier'
+import {scan_problems} from '../../Api/agents_calls'
+import {saveExercise, updateExercise} from '../../Api/exercises_calls'
 
 function BoardView({ onBack, initialData, currentExerciseId }) {
   // --- ESTADOS PRINCIPALES ---
@@ -41,7 +44,6 @@ const [showSaveModal, setShowSaveModal] = useState(false);
 
   // --- ESTADOS DE NAVEGACIÓN ---
   const [currentStep, setCurrentStep] = useState(0);
-  const [targetStep, setTargetStep] = useState(null);
 
   // --- ESTADOS DE PANTALLA COMPLETA ---
   const playerContainerRef = useRef(null);
@@ -117,7 +119,6 @@ const [showSaveModal, setShowSaveModal] = useState(false);
   };
 
   const resetNavigation = () => {
-    setTargetStep(null);
     setCurrentStep(0);
   };
 
@@ -157,7 +158,6 @@ const [showSaveModal, setShowSaveModal] = useState(false);
 
     if (file) {
       setIsScanning(true);
-      try {
         const problems= await scan_problems(file)
 
         if (problems && problems.length > 0) {
@@ -171,12 +171,8 @@ const [showSaveModal, setShowSaveModal] = useState(false);
         } else {
           alert("No pude leer ejercicios en la imagen.");
         }
-      } catch (error) { 
-        console.error(error);
-        alert("Error al leer el archivo.");
-      } finally {
         setIsScanning(false);
-      }
+      
     }
   };
 
@@ -188,33 +184,7 @@ const [showSaveModal, setShowSaveModal] = useState(false);
 
   const handleSaveClick = () => {
       if (!editableSolution) return;
-      setShowSaveModal(true); // Abrimos el modal en lugar del prompt
-  };
-
-  // 1. GUARDAR EN DB
-  const handleSaveToLibrary = async () => {
-      if (!editableSolution) return;
-
-      const titulo = prompt("Asigna un nombre a este ejercicio:", "Resolución Matemática");
-      if (!titulo) return;
-
-      // Guardamos la estructura completa para mantener compatibilidad
-      const contentToSave = { escenas: editableSolution };
-
-      const payload = {
-          titulo: titulo,
-          contenido_json: JSON.stringify(contentToSave),
-          tags: "Álgebra", 
-          fecha: new Date().toLocaleDateString()
-      };
-
-      try {
-          await axios.post("http://localhost:8000/api/v1/exercises", payload);
-          alert("✅ ¡Ejercicio guardado en tu biblioteca!");
-      } catch (error) {
-          console.error(error);
-          alert("Error al guardar.");
-      }
+      setShowSaveModal(true); 
   };
 
   // 2. EXPORTAR JSON (Descargar archivo)
@@ -235,24 +205,7 @@ const [showSaveModal, setShowSaveModal] = useState(false);
 
   const handleConfirmSave = async (titulo, tagsString) => {
       setShowSaveModal(false); // Cerramos modal
-
-      // Preparamos el contenido
-      const contentToSave = { escenas: editableSolution };
-
-      const payload = {
-          titulo: titulo,
-          contenido_json: JSON.stringify(contentToSave),
-          tags: tagsString, // Ahora usamos las tags personalizadas
-          fecha: new Date().toLocaleDateString()
-      };
-
-      try {
-          await axios.post("http://localhost:8000/api/v1/exercises", payload);
-          alert("✅ ¡Ejercicio guardado en tu biblioteca!");
-      } catch (error) {
-          console.error(error);
-          alert("Error al guardar.");
-      }
+      saveExercise(editableSolution,titulo,tagsString)
   };
 
   // 3. IMPORTAR JSON (Leer archivo)
@@ -272,7 +225,7 @@ const [showSaveModal, setShowSaveModal] = useState(false);
               // Limpiar input para permitir subir el mismo archivo de nuevo si se desea
               e.target.value = ''; 
           } catch (err) {
-              alert("⚠️ El archivo no es un JSON válido o está corrupto.");
+              alert("El archivo no es un JSON válido o está corrupto.");
               console.error(err);
           }
       };
@@ -288,18 +241,10 @@ const [showSaveModal, setShowSaveModal] = useState(false);
     setCurrentStep(0);
 
     if (currentExerciseId) {
-        try {
-            await axios.put(`http://localhost:8000/api/v1/exercises/${currentExerciseId}`, {
-                contenido_json: JSON.stringify({ escenas: newSolution }),
-            });
-            console.log("✅ DB Actualizada");
-        } catch (error) {
-            console.error(error);
-        }
+      updateExercise(currentExerciseId,newSolution)
     }
   };
 
-  const handleResourceClick = (stepIndex) => setTargetStep(stepIndex);
 
   // --- RENDERIZADO ---
   return (
@@ -396,7 +341,7 @@ const [showSaveModal, setShowSaveModal] = useState(false);
             </button>
           </div>
           
-          {/* Sidebar Recursos (Móvil/Desktop) */}
+          {/* Sidebar Recursos */}
           {editableSolution && editableSolution[0]?.resources && !isFullscreen && (
               <SidebarRecursos resources={editableSolution[0].resources} currentStepIdx={currentStep} onResourceClick={handleResourceClick} />
           )}

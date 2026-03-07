@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   Save, X, Plus, Trash2, Code, MessageSquare, MousePointer2, 
   ChevronRight, LayoutTemplate, BookOpen, Copy, ClipboardPaste, 
-  ListPlus // <--- NUEVO IMPORT
+  ListPlus 
 } from 'lucide-react';
 import WhiteboardPlayer from './WhiteboardPlayer';
 
@@ -19,7 +19,7 @@ const SceneVisualEditor = ({ sceneData, onSave, onCancel }) => {
       await navigator.clipboard.writeText(JSON.stringify(draft, null, 2));
       alert("¡JSON copiado al portapapeles con éxito!");
     } catch (err) {
-      alert("Error al copiar al portapapeles. Tu navegador podría estar bloqueándolo.");
+      alert("Error al copiar al portapapeles. Tu navegador podría estar bloqueándolo.",err);
     }
   };
 
@@ -41,7 +41,7 @@ const SceneVisualEditor = ({ sceneData, onSave, onCancel }) => {
       setPreviewStep(0);
       alert("¡JSON validado e importado correctamente!");
     } catch (err) {
-      alert("⚠️ Error al importar JSON:\n\n" + err.message + "\n\nAsegúrate de haber copiado el JSON correcto.");
+      alert(" Error al importar JSON:\n\n" + err.message + "\n\nAsegúrate de haber copiado el JSON correcto.");
     }
   };
 

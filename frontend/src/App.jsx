@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
-// ... imports de componentes (HomeView, SettingsView, etc.)
+import { useState, useEffect } from "react";
 import HomeView from "./components/HomeView";
 import SettingsView from "./components/SettingsView";
-import BoardView from "./components/BoardView"; // <--- Tu antigua App.jsx encapsulada
+import BoardView from "./components/BoardView"; 
 import ExercisesView from "./components/ExercisesView";
 
 function App() {
@@ -17,7 +16,6 @@ function App() {
         const [remoteVersion, setRemoteVersion] = useState(null);
         const [downloadUrl, setDownloadUrl] = useState("");
 
-  // Cargar keys al iniciar
  useEffect(() => {
     const saved = localStorage.getItem('math_app_keys');
     if (saved) setApiKeys(JSON.parse(saved));
@@ -26,7 +24,7 @@ function App() {
 
   const navigateTo = (view) => {
     if (view === 'board' && !hasKeys && !exerciseToLoad) { // Permitimos entrar si carga ejercicio local
-        alert("⚠️ Necesitas configurar tu API Key de Gemini para usar la pizarra.");
+        alert(" Necesitas configurar tu API Key de Gemini para usar la pizarra.");
         setCurrentView('settings');
         return;
     }
@@ -47,7 +45,6 @@ function App() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-neutral-200 font-sans selection:bg-[#00ff66] selection:text-black">
       
-      {/* HEADER GLOBAL (Opcional, o puedes dejarlo dentro de cada vista) */}
       <div className="fixed top-0 left-0 w-full p-4 z-50 pointer-events-none">
           {/* Logo pequeño si no estamos en home */}
           {currentView !== 'home' && (
@@ -77,8 +74,6 @@ function App() {
         )}
 
         {currentView === 'board' && (
-            // Aquí renderizas tu componente de pizarra antiguo
-            // Le pasamos las keys para que el hook useMathTutor las tenga frescas si es necesario
             <BoardView 
                 onBack={() => navigateTo('home')} 
                 apiKeys={apiKeys} 

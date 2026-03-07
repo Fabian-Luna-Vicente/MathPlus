@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { X, Sparkles, Layout } from 'lucide-react'; 
 import WhiteboardPlayer from './WhiteboardPlayer';
+import {get_explain_step} from '../../Api/agents_calls'
 
 const MathBrowser = ({ initialScene, onToggleFullscreen, isFullscreen }) => {
   const [tabs, setTabs] = useState([
@@ -17,50 +18,29 @@ const MathBrowser = ({ initialScene, onToggleFullscreen, isFullscreen }) => {
     if (activeTabId === tabId) setActiveTabId('main');
   };
 
-  // --- NUEVA FUNCIÓN PARA GUARDAR EL PASO AL NAVEGAR ---
   const handleStepChange = (newStep) => {
     setTabs(prevTabs => prevTabs.map(tab => 
         tab.id === activeTabId ? { ...tab, activeStep: newStep } : tab
     ));
   };
 
-  // --- AHORA RECIBE 'userQuery' DEL MODAL ---
   const handleAskForExplanation = async (stepIndex, currentEquation, nextEquation, userQuery) => {
     setLoading(true);
-    try {
-        // Concatenamos la duda del usuario al contexto
-        const finalContext = `Solicitud del usuario. DUDA ESPECÍFICA DEL ALUMNO: "${userQuery || 'Explícame este paso en general'}"`;
 
-        const response = await fetch('http://localhost:8000/api/v1/explain_step', { 
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
+    const data={
                 step_index: stepIndex,
                 before_tex: currentEquation,
                 after_tex: nextEquation,
-                context: finalContext 
-            })
-        });
-        
-        const newSceneData = await response.json();
-        const newTabId = `expl-${Date.now()}`;
-        const newTab = {
-            id: newTabId,
-            title: `Explicación Paso ${stepIndex}`,
-            data: newSceneData.escenas[0],
-            activeStep: 0,
-            isExplanation: true
-        };
-
-        setTabs([...tabs, newTab]);
+                context: "" 
+            }
+    
+        const {newTab,newTabId}=get_explain_step(stepIndex,data,userQuery)
+        if (newTab) {
+                setTabs([...tabs, newTab]);
         setActiveTabId(newTabId);
+        }
 
-    } catch (error) {
-        alert("Error generando la explicación. Revisa la consola.");
-        console.error(error);
-    } finally {
-        setLoading(false);
-    }
+        setLoading(false)
   };
 
   const activeTab = tabs.find(t => t.id === activeTabId);
@@ -114,13 +94,8 @@ const MathBrowser = ({ initialScene, onToggleFullscreen, isFullscreen }) => {
             <WhiteboardPlayer 
                 key={activeTab.id} 
                 scenes={[activeTab.data]} 
-                
-                // PASAMOS EL ESTADO GUARDADO
                 initialStep={activeTab.activeStep}
-                
-                // ESCUCHAMOS CAMBIOS DE PASO
                 onStepChange={handleStepChange}
-
                 onExplainRequest={!activeTab.isExplanation ? handleAskForExplanation : null}
                 onToggleFullscreen={onToggleFullscreen}
                 isFullscreen={isFullscreen}

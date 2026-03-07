@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import 'mathlive';
 
 const MathInput = ({ value, onChange }) => {
@@ -9,7 +9,7 @@ const MathInput = ({ value, onChange }) => {
     window.MathfieldElement.fontsDirectory = 
       "https://unpkg.com/mathlive@0.98.0/dist/fonts";
       
-    // (Opcional) También los sonidos para que no den error 404
+    // También los sonidos para que no den error 404
     window.MathfieldElement.soundsDirectory = 
       "https://unpkg.com/mathlive@0.98.0/dist/sounds";
 
@@ -17,7 +17,6 @@ const MathInput = ({ value, onChange }) => {
     if (mf) {
       mf.value = value;
       
-      // Usamos una función nombrada para poder limpiar el event listener después
       const handleInput = (evt) => {
         onChange(evt.target.value);
       };

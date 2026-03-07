@@ -3,7 +3,6 @@ import { BlockMath } from 'react-katex';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, ChevronRight, ChevronLeft, Download, RefreshCw } from 'lucide-react';
 
-// Componente para dibujar las anotaciones (Flechas, Círculos, Tachones)
 const AnnotationLayer = ({ type, zone }) => {
   // Definimos coordenadas aproximadas para las zonas (Porcentajes: top, left, width, height)
   const getZone = () => {

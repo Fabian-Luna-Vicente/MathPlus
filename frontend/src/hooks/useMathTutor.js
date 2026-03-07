@@ -31,7 +31,7 @@ export const useMathTutor = () => {
     formData.append('query', finalQuery);
     
     try {
-      const res = await axios.post('http://localhost:8000/api/v1/solve', formData,{
+      const res = await axios.post('http://localhost:8000/api/v1/agents/solve', formData,{
         headers: headers
       });
       setSolution(res.data);

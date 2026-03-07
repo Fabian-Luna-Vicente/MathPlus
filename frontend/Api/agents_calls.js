@@ -1,5 +1,6 @@
+import axios from 'axios'
 
-export const scan_problems=async({file=null})=>{
+export const scan_problems=async({file})=>{
 
     const key=verifyGeminiKey()
     if (!key)return
@@ -9,7 +10,7 @@ export const scan_problems=async({file=null})=>{
         formData.append("file", file);
         
         const response = await axios.post(
-          "http://localhost:8000/api/v1/scan_problems",
+          "http://localhost:8000/api/v1/agents/scan_problems",
           formData,
           { headers: { "x-gemini-key": key } }
         );
@@ -22,4 +23,34 @@ export const scan_problems=async({file=null})=>{
         alert("Error al leer el archivo.");
         return [];
       } 
+}
+
+export const get_explain_step= async (stepIndex,data,userQuery)=>{
+    try {
+        const finalContext = `Solicitud del usuario. DUDA ESPECÍFICA DEL ALUMNO: "${userQuery || 'Explícame este paso en general'}"`;
+        data.context=finalContext;
+
+        const response = await fetch('http://localhost:8000/api/v1/agents/explain_step', { 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        
+        const newSceneData = await response.json();
+        const newTabId = `expl-${Date.now()}`;
+        const newTab = {
+            id: newTabId,
+            title: `Explicación Paso ${stepIndex}`,
+            data: newSceneData.escenas[0],
+            activeStep: 0,
+            isExplanation: true
+        };
+
+        return {newTab,newTabId};
+
+    } catch (error) {
+        alert("Error generando la explicación. Revisa la consola.");
+        console.error(error);
+        return null;
+    }
 }

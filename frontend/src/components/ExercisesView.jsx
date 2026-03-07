@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import { 
     BookOpen, 
@@ -11,31 +11,19 @@ import {
     Filter, 
     X
 } from 'lucide-react';
+import {getExercises} from '../../Api/exercises_calls'
 
 const ExercisesView = ({ onBack, onLoadExercise }) => {
     const [exercises, setExercises] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
-    
-    // --- NUEVO ESTADO PARA EL TAG SELECCIONADO ---
     const [selectedTag, setSelectedTag] = useState("all");
 
-    // --- CARGAR DATOS AL MONTAR ---
     useEffect(() => {
+        const fetchExercises=async ()=>{setExercises(await getExercises());setLoading(false) }
         fetchExercises();
     }, []);
 
-    const fetchExercises = async () => {
-        try {
-            const res = await axios.get('http://localhost:8000/api/v1/exercises');
-            setExercises(res.data);
-        } catch (error) {
-            console.error("Error cargando ejercicios:", error);
-            setExercises([]); 
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleDelete = async (e, id) => {
         e.stopPropagation();
@@ -44,24 +32,21 @@ const ExercisesView = ({ onBack, onLoadExercise }) => {
         try {
             await axios.delete(`http://localhost:8000/api/v1/exercises/${id}`);
             setExercises(prev => prev.filter(ex => ex.id !== id));
-        } catch (error) {
-            alert("Error al intentar borrar el ejercicio.");
+        } catch (e) {
+            alert("Error al intentar borrar el ejercicio.",e);
         }
     };
 
-    // --- 1. EXTRAER TAGS ÚNICOS (Hook useMemo para rendimiento) ---
     const uniqueTags = useMemo(() => {
         const tagsSet = new Set();
         exercises.forEach(ex => {
             if (ex.tags) {
-                // Separamos por comas y limpiamos espacios
                 ex.tags.split(',').forEach(tag => tagsSet.add(tag.trim()));
             }
         });
         return Array.from(tagsSet).sort();
     }, [exercises]);
 
-    // --- 2. LÓGICA DE FILTRADO MEJORADA ---
     const filtered = exercises.filter(ex => {
         const term = searchTerm.toLowerCase();
         

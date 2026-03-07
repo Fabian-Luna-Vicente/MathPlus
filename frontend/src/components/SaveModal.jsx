@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Save, X, Tag, Plus } from 'lucide-react';
 
 const SUGGESTED_TAGS = ["Álgebra", "Cálculo", "Geometría", "Física", "Examen", "Difícil"];
@@ -6,7 +6,7 @@ const SUGGESTED_TAGS = ["Álgebra", "Cálculo", "Geometría", "Física", "Examen
 const SaveModal = ({ isOpen, onClose, onConfirm }) => {
   const [title, setTitle] = useState("Resolución Matemática");
   const [currentTag, setCurrentTag] = useState("");
-  const [tags, setTags] = useState(["General"]); // Tag por defecto
+  const [tags, setTags] = useState(["General"]); 
 
   if (!isOpen) return null;
 
@@ -41,7 +41,6 @@ const SaveModal = ({ isOpen, onClose, onConfirm }) => {
         alert("El título es obligatorio");
         return;
     }
-    // Enviamos las tags unidas por comas para guardar en SQL
     onConfirm(title, tags.join(', '));
   };
 
