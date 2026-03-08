@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { verifyGeminiKey } from "../utils/keyVerifier";
+import { verifyGeminiAndGroqKey, verifyGeminiKey } from "../utils/keyVerifier";
 
 export const scan_problems = async (file) => {
 
@@ -28,20 +28,23 @@ export const scan_problems = async (file) => {
 
 export const get_explain_step = async (stepIndex, data, userQuery) => {
   try {
-    const keys = verifyGeminiKey() // Usamos al menos gemini
+    const keys = verifyGeminiAndGroqKey()
     const finalContext = `Solicitud del usuario. DUDA ESPECÍFICA DEL ALUMNO: "${userQuery || 'Explícame este paso en general'}"`;
     data.context = finalContext;
 
     const response = await fetch('http://localhost:8000/api/v1/agents/explain_step', {
       method: 'POST',
-      headers: { 
+      headers: {
         'Content-Type': 'application/json',
-        'x-gemini-key': keys || ""
+        'x-gemini-key': keys.gemini,
+        'x-groq-key': keys.groq
       },
       body: JSON.stringify(data)
     });
+    console.log(response)
 
     const newSceneData = await response.json();
+    console.log(newSceneData)
     const newTabId = `expl-${Date.now()}`;
     const newTab = {
       id: newTabId,
@@ -50,7 +53,7 @@ export const get_explain_step = async (stepIndex, data, userQuery) => {
       activeStep: 0,
       isExplanation: true
     };
-
+    console.log(newTab)
     return { newTab, newTabId };
 
   } catch (error) {

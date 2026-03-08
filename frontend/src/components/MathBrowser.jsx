@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { X, Sparkles, Layout } from 'lucide-react'; 
 import WhiteboardPlayer from './WhiteboardPlayer';
 import {get_explain_step} from '../../Api/agents_calls'
@@ -18,29 +18,30 @@ const MathBrowser = ({ initialScene, onToggleFullscreen, isFullscreen }) => {
     if (activeTabId === tabId) setActiveTabId('main');
   };
 
-  const handleStepChange = (newStep) => {
+  const handleStepChange = useCallback((newStep) => {
     setTabs(prevTabs => prevTabs.map(tab => 
         tab.id === activeTabId ? { ...tab, activeStep: newStep } : tab
     ));
-  };
+  }, [activeTabId]);
 
-  const handleAskForExplanation = async (stepIndex, currentEquation, nextEquation, userQuery) => {
+  const handleAskForExplanation = async (stepIndex, currentEquation, nextEquation, userQuery, isIsolatedQuery) => {
     setLoading(true);
 
     const data={
                 step_index: stepIndex,
                 before_tex: currentEquation,
-                after_tex: nextEquation,
-                context: "" 
+                after_tex: isIsolatedQuery ? "" : nextEquation,
+                context: "",
+                mode: isIsolatedQuery ? "isolated" : "transition"
             }
     
-        const {newTab,newTabId}=get_explain_step(stepIndex,data,userQuery)
-        if (newTab) {
-                setTabs([...tabs, newTab]);
-        setActiveTabId(newTabId);
+        const result = await get_explain_step(stepIndex,data,userQuery);
+        if (result && result.newTab) {
+                setTabs(prevTabs => [...prevTabs, result.newTab]);
+                setActiveTabId(result.newTabId);
         }
 
-        setLoading(false)
+        setLoading(false);
   };
 
   const activeTab = tabs.find(t => t.id === activeTabId);

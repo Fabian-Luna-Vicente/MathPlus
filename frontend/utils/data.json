@@ -1,0 +1,104 @@
+{
+    "escenas": [
+        {
+            "ig": "Calculando el Logaritmo de 0.0001",
+            "cont": [
+                {
+                    "type": "Latex",
+                    "status": "show",
+                    "cont": "\\log 0.0001",
+                    "x": 350,
+                    "y": 100
+                },
+                {
+                    "type": "Latex",
+                    "status": "hide",
+                    "cont": "\\log_{10} 0.0001",
+                    "x": 350,
+                    "y": 180
+                },
+                {
+                    "type": "Latex",
+                    "status": "hide",
+                    "cont": "\\log_{10} 10^{-4}",
+                    "x": 350,
+                    "y": 260
+                },
+                {
+                    "type": "Latex",
+                    "status": "hide",
+                    "cont": "-4",
+                    "x": 350,
+                    "y": 340
+                }
+            ],
+            "insts": [
+                {
+                    "msg": "Calculando el Logaritmo de 0.0001. Primero identificamos la base 10.",
+                    "tgs": [
+                        {
+                            "tg": "1:(0-f)",
+                            "ac": "appear"
+                        }
+                    ]
+                },
+                {
+                    "msg": "El siguiente paso es expresar 0.0001 como una potencia de 10. Sabemos que 0.0001 es igual a $10^{-4}$.",
+                    "tgs": [
+                        {
+                            "tg": "1:(10-16)",
+                            "ac": "resalt",
+                            "color": "#FCD34D"
+                        },
+                        {
+                            "tg": "2:(0-f)",
+                            "ac": "appear"
+                        },
+                        {
+                            "tg": "2:(10-17)",
+                            "ac": "resalt",
+                            "color": "#4ADE80"
+                        }
+                    ]
+                },
+                {
+                    "msg": "Ahora aplicamos la propiedad: el logaritmo en base 'b' de 'b' a la 'x' es 'x'.",
+                    "tgs": [
+                        {
+                            "tg": "2:(0-17)",
+                            "ac": "resalt",
+                            "color": "#FCD34D"
+                        },
+                        {
+                            "tg": "3:(0-f)",
+                            "ac": "appear"
+                        },
+                        {
+                            "tg": "3:(0-2)",
+                            "ac": "resalt",
+                            "color": "#4ADE80"
+                        }
+                    ]
+                }
+            ],
+            "resources": [
+                {
+                    "step": [
+                        0,
+                        1
+                    ],
+                    "title": "Logaritmo Común",
+                    "tex": "$\\log x = \\log_{10} x$"
+                },
+                {
+                    "step": [
+                        1,
+                        2
+                    ],
+                    "title": "Notación Científica",
+                    "tex": "$0.0001 = 10^{-4}$"
+                }
+            ]
+        }
+    ]
+}

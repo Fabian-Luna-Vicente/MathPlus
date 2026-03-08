@@ -58,6 +58,10 @@ const [showSaveModal, setShowSaveModal] = useState(false);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editableSolution, setEditableSolution] = useState(null);
 
+  // --- ESTADOS DE DRAG & DROP ---
+  const [isDraggingFile, setIsDraggingFile] = useState(false);
+  const [isDraggingJSON, setIsDraggingJSON] = useState(false);
+
   // Hook del backend
   const { solveProblem, loading, solution } = useMathTutor();
 
@@ -238,6 +242,51 @@ const [showSaveModal, setShowSaveModal] = useState(false);
       reader.readAsText(fileObj);
   };
 
+  const handleDragOver = (e, type) => {
+    e.preventDefault();
+    if (type === "file") setIsDraggingFile(true);
+    if (type === "json") setIsDraggingJSON(true);
+  };
+
+  const handleDragLeave = (type) => {
+    if (type === "file") setIsDraggingFile(false);
+    if (type === "json") setIsDraggingJSON(false);
+  };
+
+  const handleDrop = (e, type) => {
+    e.preventDefault();
+    handleDragLeave(type);
+    
+    const droppedFile = e.dataTransfer.files[0];
+    if (!droppedFile) return;
+
+    if (type === "file") {
+      if (droppedFile.type.startsWith("image/") || droppedFile.type === "application/pdf") {
+        setFile(droppedFile);
+        setLatexInput("");
+      } else {
+        alert("Por favor, suelta una imagen o un PDF.");
+      }
+    }
+
+    if (type === "json") {
+      if (droppedFile.name.endsWith(".json")) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const parsedData = JSON.parse(event.target.result);
+            processAndSetSolution(parsedData);
+          } catch (err) {
+            alert("El archivo no es un JSON válido.");
+          }
+        };
+        reader.readAsText(droppedFile);
+      } else {
+        alert("Por favor, suelta un archivo JSON.");
+      }
+    }
+  };
+
   // 4. ACTUALIZAR DESDE EDITOR VISUAL
   const handleSaveEdits = async (editedScene) => {
     const newSolution = [...editableSolution];
@@ -300,11 +349,16 @@ const [showSaveModal, setShowSaveModal] = useState(false);
             {/* Zona de Archivos (Imágenes/PDF) */}
             <div
               onClick={() => !latexInput && fileInputRef.current.click()}
+              onDragOver={(e) => !latexInput && handleDragOver(e, "file")}
+              onDragLeave={() => handleDragLeave("file")}
+              onDrop={(e) => !latexInput && handleDrop(e, "file")}
               className={`
                 border-2 border-dashed rounded-lg p-4 transition-all duration-300 flex items-center justify-center gap-3 relative group
                 ${latexInput 
                     ? 'opacity-50 cursor-not-allowed border-neutral-800 bg-neutral-900/50' 
-                    : 'cursor-pointer border-neutral-700 hover:border-neutral-500 hover:bg-neutral-800'
+                    : isDraggingFile
+                      ? 'border-[#00ff66] bg-[#00ff66]/10 scale-[1.02]'
+                      : 'cursor-pointer border-neutral-700 hover:border-neutral-500 hover:bg-neutral-800'
                 }
                 ${file ? 'border-[#00ff66] bg-[#00ff66]/5' : ''}
               `}
@@ -372,15 +426,22 @@ const [showSaveModal, setShowSaveModal] = useState(false);
              </div>
 
              <div className="flex gap-2">
-                 {/* 1. Importar JSON */}
-                 <button 
+                                   {/* 1. Importar JSON */}
+                  <button 
                     onClick={handleImportJSONClick} 
+                    onDragOver={(e) => handleDragOver(e, "json")}
+                    onDragLeave={() => handleDragLeave("json")}
+                    onDrop={(e) => handleDrop(e, "json")}
                     disabled={loading}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded bg-neutral-900 border border-neutral-700 text-neutral-300 text-xs font-bold hover:text-white hover:border-white transition"
-                    title="Cargar archivo .json"
-                 >
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded border text-xs font-bold transition
+                      ${isDraggingJSON 
+                        ? 'bg-[#00ff66]/20 border-[#00ff66] text-[#00ff66] scale-110 shadow-[0_0_15px_rgba(0,255,102,0.3)]' 
+                        : 'bg-neutral-900 border-neutral-700 text-neutral-300 hover:text-white hover:border-white'
+                      }`}
+                    title="Cargar o arrastrar archivo .json"
+                  >
                     <FileJson size={14} /> Importar
-                 </button>
+                  </button>
 
                  {/* 2. Exportar JSON */}
                  <button 

@@ -28,6 +28,8 @@ def parse_text_to_json(raw_text: str) -> dict:
             if current_section == "CONT":
                 parts = [p.strip() for p in line.split("|")]
                 if len(parts) >= 6:
+                    raw_latex = "|".join(parts[5:]).strip()
+                    clean_latex = raw_latex.replace('$', '').strip()
                     scene["cont"].append({
                         "type": parts[0],
                         "status": parts[1],
@@ -35,7 +37,7 @@ def parse_text_to_json(raw_text: str) -> dict:
                         "x": int(parts[3]),
                         "y": int(parts[4]),
                         # Join por si el LaTeX contenía barras '|' (ej: valor absoluto)
-                        "cont": "|".join(parts[5:]) 
+                        "cont": clean_latex 
                     })
             
             # --- PARSING: RES (Recursos) ---       

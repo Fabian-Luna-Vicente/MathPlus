@@ -8,8 +8,9 @@ class UserRequest(BaseModel):
 class ExplainRequest(BaseModel):
     step_index: int
     before_tex: str  # La ecuación antes del paso
-    after_tex: str   # La ecuación después del paso
+    after_tex: Optional[str] = None  # La ecuación después del paso (opcional si es isolated)
     context: str
+    mode: Optional[str] = "transition" # 'isolated' o 'transition'
     
 class DetectedProblemsResponse(BaseModel):
     problems: List[str]

@@ -3,8 +3,9 @@ from app.agents.graph import app_graph
 async def explain_step(x_gemini_key,x_groq_key,req):
     
     api_keys={"gemini":x_gemini_key,"groq":x_groq_key}
+    print(req.context)
     initial_state = {
-        "user_input": "", 
+        "user_input": req.context, 
         "is_valid_math": False,
         "solution_raw": "", 
         "structured_solution": "",

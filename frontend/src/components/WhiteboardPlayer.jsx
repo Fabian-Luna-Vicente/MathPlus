@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { InlineMath } from "react-katex";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence,motion } from "framer-motion";
 import {
   Play,
   Pause,
@@ -195,6 +195,7 @@ const WhiteboardPlayer = ({
   // Estados del Modal de Explicación
   const [showExplainModal, setShowExplainModal] = useState(false);
   const [userQuery, setUserQuery] = useState("");
+  const [isIsolatedQuery, setIsIsolatedQuery] = useState(false);
 
   const scrollContainerRef = useRef(null);
   const synth = useRef(window.speechSynthesis);
@@ -523,9 +524,10 @@ const WhiteboardPlayer = ({
     const ecActual = scene.cont[activeEqIdx]?.cont || "";
     const ecSiguiente = scene.cont[activeEqIdx + 1]?.cont || ecActual;
 
-    onExplainRequest(currentStepIdx, ecActual, ecSiguiente, userQuery);
+    onExplainRequest(currentStepIdx, ecActual, ecSiguiente, userQuery, isIsolatedQuery);
     setShowExplainModal(false);
     setUserQuery("");
+    setIsIsolatedQuery(false);
   };
 
   return (
@@ -790,6 +792,17 @@ const WhiteboardPlayer = ({
                 placeholder="Ej: No entiendo de dónde salió el 4, o por qué cambió el signo..."
                 className="w-full bg-[#0a0a0a] border border-neutral-700 rounded-lg p-3 text-white text-sm focus:border-amber-500 focus:outline-none min-h-[100px] mb-4"
               />
+              <label className="flex items-center gap-2 mb-6 cursor-pointer group">
+                <input 
+                  type="checkbox" 
+                  checked={isIsolatedQuery}
+                  onChange={(e) => setIsIsolatedQuery(e.target.checked)}
+                  className="rounded border-neutral-700 bg-neutral-900 text-amber-500 focus:ring-amber-500/30 focus:ring-offset-0 w-4 h-4 cursor-pointer"
+                />
+                <span className="text-xs text-neutral-400 group-hover:text-neutral-300 transition-colors">
+                  Aislar paso (Solo analizar esta ecuación sin avanzar a la siguiente)
+                </span>
+              </label>
               <div className="flex justify-end gap-3">
                 <button
                   onClick={() => setShowExplainModal(false)}

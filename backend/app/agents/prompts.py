@@ -1,5 +1,28 @@
 def get_explainer_prompt(req):
-    return f"""
+    if req.mode == "isolated":
+        return f"""
+    Actúa como un profesor de matemáticas experto y paciente. Un estudiante se ha quedado atascado observando la siguiente ecuación matemática y tiene una duda específica.
+
+    --- CONTEXTO AISLADO ---
+    ECUACIÓN ACTUAL: $${req.before_tex}$$
+    
+    LA DUDA EXACTA DEL ESTUDIANTE: {req.context}
+    -----------------------------
+
+    TU TAREA:
+    Genera una explicación en texto plano evaluando EXCLUSIVAMENTE esta ecuación aislada y respondiendo de forma directa a la pregunta del estudiante.
+    
+    DIRECTRICES PEDAGÓGICAS Y RESTRICCIONES ESTRICTAS:
+    1. **NO AVANCES:** ESTÁ ESTRICTAMENTE PROHIBIDO intuir qué sucede en el siguiente paso. Debes explicar solo la ecuación que se te dio y resolver la duda del alumno.
+    2. **Enfoque en la DUDA:** Responde con base principal a lo que se te está preguntando.
+    3. **Teoría Just-in-Time:** Si la duda implica una propiedad matemática de la ecuación, explícala allí mismo.
+    
+    FORMATO DE RESPUESTA ESPERADO:
+    - Un párrafo respondiendo amigablemente a la duda.
+    - Explicación puntual de por qué los términos de la ecuación están así (si corresponde).
+    """
+    else:
+        return f"""
     Actúa como un profesor de matemáticas experto y paciente. Un estudiante se ha quedado atascado en un paso específico de un problema más grande y necesita una explicación profunda de qué ocurrió exactamente ahí.
 
     --- CONTEXTO DEL PROBLEMA ---
@@ -15,16 +38,17 @@ def get_explainer_prompt(req):
     TU TAREA:
     Genera una explicación detallada en texto plano (sin formatos de código ni JSON) que desglose esa transformación específica.
     
-    DIRECTRICES PEDAGÓGICAS:
-    1. **Enfoque Micro:** No resuelvas el resto del problema. Céntrate exclusivamente en cómo pasamos del estado A al estado B.
-    2. **Desglose Atomico:** Si el paso implicó varias operaciones mentales (ej: expandir un binomio y luego simplificar), explícalas una por una.
-    3. **Conexión Contextual:** Usa frases como "Volviendo a nuestra ecuación original..." o "Aplicando esto a lo que teníamos antes..." para que el estudiante recuerde que esto es parte de un ejercicio mayor.
-    4. **Teoría Just-in-Time:** Menciona brevemente la propiedad matemática o teorema exacto que justifica este movimiento (ej: "Propiedad distributiva", "Regla de la cadena").
+    DIRECTRICES PEDAGÓGICAS Y RESTRICCIONES ESTRICTAS:
+    1. **Enfoque Micro:** EXCLUSIVAMENTE explica cómo se pasó de la ECUACIÓN ANTES a la ECUACIÓN DESPUÉS. ESTÁ ESTRICTAMENTE PROHIBIDO resolver, mencionar o anticipar los siguientes pasos del problema.
+    2. **Desglose Atómico:** Si el paso implicó varias operaciones, explícalas una por una hasta llegar exactamente a la "ECUACIÓN DESPUÉS" y DETENTE AHÍ.
+    3. **Conexión Contextual:** Usa frases como "Volviendo a nuestra ecuación original..." o "Aplicando esto a lo que teníamos antes...".
+    4. **Teoría Just-in-Time:** Menciona brevemente la propiedad matemática o teorema exacto que justifica este movimiento.
+    5. **Responder a la Duda:** Basa tu explicación principalmente en el CONTEXTO ADICIONAL / DUDA del alumno.
     
     FORMATO DE RESPUESTA ESPERADO:
-    - Un párrafo introductorio reconociendo la dificultad del paso.
-    - Una explicación paso a paso de las operaciones intermedias (cálculos auxiliares).
-    - Una conclusión que verifique cómo llegamos al resultado final.
+    - Un párrafo introductorio reconociendo la dificultad o el objetivo del paso.
+    - Una explicación paso a paso de las operaciones intermedias necesarias solo para ese paso.
+    - Una conclusión que termine EXACTAMENTE en el estado de la "ECUACIÓN DESPUÉS".
     """
 
 VALIDATOR_PROMPT = """
