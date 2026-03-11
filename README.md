@@ -118,4 +118,4 @@ This project is licensed under the ISC License. See the `LICENSE` file for more 
 
 ---
 
-*Developed with 🌜 by Fabian Luna 🌜*
+*Developed 🌜 by Fabian Luna 🌜*
