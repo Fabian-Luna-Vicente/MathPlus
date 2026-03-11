@@ -46,7 +46,7 @@ function App() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-neutral-200 font-sans selection:bg-[#00ff66] selection:text-black">
       
-      <div className="fixed top-0 left-0 w-full p-4 z-50 pointer-events-none">
+      <div className="fixed top-0 left-0 w-full p-4 z-50 pointer-events-none flex item-center gap-2">
           {/* Logo pequeño si no estamos en home */}
           {currentView !== 'home' && (
               <button 
@@ -55,7 +55,10 @@ function App() {
               >
                   MathPlus
               </button>
+
+
           )}
+                          <img src="https://i.postimg.cc/nChkdgXW/MathPlus.png" alt="MathPlus" className="w-10 h-10 object-contain" />
       </div>
 
       <div className="pt-16 pb-8 px-4">

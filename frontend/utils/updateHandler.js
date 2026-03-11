@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 export const CURRENT_VERSION = "1.0.0";
-export const REMOTE_VERSION_URL = "https://raw.githubusercontent.com/Fabianlv27/MathPlus/Refactor/version.json";
+export const REMOTE_VERSION_URL = "https://raw.githubusercontent.com/Fabian-Luna-Vicente/MathPlus/main/version.json";
 
 export const checkForUpdates = async (setUpdateStatus, setRemoteVersion, setDownloadUrl) => {
     setUpdateStatus('checking')
